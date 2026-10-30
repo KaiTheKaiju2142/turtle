@@ -86,25 +86,25 @@ end;
 
 local colorSettings = {
 	Main = {
-		HeaderColor = Color3.fromRGB(0, 168, 255),
-		HeaderShadingColor = Color3.fromRGB(0, 151, 230),
-		HeaderTextColor = Color3.fromRGB(47, 54, 64),
-		MainBackgroundColor = Color3.fromRGB(47, 54, 64),
-		InfoScrollingFrameBgColor = Color3.fromRGB(47, 54, 64),
-		ScrollBarImageColor = Color3.fromRGB(127, 143, 166)
+		HeaderColor = Color3.fromRGB(0, 0, 0),
+		HeaderShadingColor = Color3.fromRGB(15, 15, 15),
+		HeaderTextColor = Color3.fromRGB(255, 255, 255),
+		MainBackgroundColor = Color3.fromRGB(0, 0, 0),
+		InfoScrollingFrameBgColor = Color3.fromRGB(0, 0, 0),
+		ScrollBarImageColor = Color3.fromRGB(255, 255, 255)
 	},
 	RemoteButtons = {
-		BorderColor = Color3.fromRGB(113, 128, 147),
-		BackgroundColor = Color3.fromRGB(53, 59, 72),
-		TextColor = Color3.fromRGB(220, 221, 225),
-		NumberTextColor = Color3.fromRGB(203, 204, 207)
+		BorderColor = Color3.fromRGB(50, 50, 50),
+		BackgroundColor = Color3.fromRGB(20, 20, 20),
+		TextColor = Color3.fromRGB(255, 255, 255),
+		NumberTextColor = Color3.fromRGB(255, 255, 255)
 	},
 	MainButtons = {
-		BorderColor = Color3.fromRGB(113, 128, 147),
-		BackgroundColor = Color3.fromRGB(53, 59, 72),
-		TextColor = Color3.fromRGB(220, 221, 225)
+		BorderColor = Color3.fromRGB(70, 70, 70),
+		BackgroundColor = Color3.fromRGB(25, 25, 25),
+		TextColor = Color3.fromRGB(255, 255, 255)
 	},
-	Code = {
+	Code = { -- Kept as requested
 		BackgroundColor = Color3.fromRGB(35, 40, 48),
 		TextColor = Color3.fromRGB(220, 221, 225),
 		CreditsColor = Color3.fromRGB(108, 108, 108)
@@ -130,12 +130,12 @@ local function ClonedService(name)
 	return __lt.cs(name, Reference);
 end;
 local HttpService = ClonedService("HttpService");
-if not isfile("TurtleSpySettings.json") then
-	writefile("TurtleSpySettings.json", __lt.cm("HttpService", "JSONEncode", settings));
-elseif (__lt.cm("HttpService", "JSONDecode", readfile("TurtleSpySettings.json"))).Main then
-	writefile("TurtleSpySettings.json", __lt.cm("HttpService", "JSONEncode", settings));
+if not isfile("OrbitSpySettings.json") then
+	writefile("OrbitSpySettings.json", __lt.cm("HttpService", "JSONEncode", settings));
+elseif (__lt.cm("HttpService", "JSONDecode", readfile("OrbitSpySettings.json"))).Main then
+	writefile("OrbitSpySettings.json", __lt.cm("HttpService", "JSONEncode", settings));
 else
-	settings = __lt.cm("HttpService", "JSONDecode", readfile("TurtleSpySettings.json"));
+	settings = __lt.cm("HttpService", "JSONDecode", readfile("OrbitSpySettings.json"));
 end;
 local function isSynapse()
 	if PROTOSMASHER_LOADED then
@@ -146,8 +146,8 @@ local function isSynapse()
 end;
 local client = (ClonedService("Players")).LocalPlayer;
 local G = getgenv and getgenv() or _G;
-G.__tspy = G.__tspy or {};
-local tstate = G.__tspy;
+G.__orbitspy = G.__orbitspy or {};
+local tstate = G.__orbitspy;
 tstate.RunService = ClonedService("RunService");
 if tstate.cleanup then
 	pcall(tstate.cleanup);
@@ -322,9 +322,9 @@ local function GetFullPathOfAnInstance(instance)
 	end;
 	return formatChild(parentPath, instance);
 end;
-local __NATurtleParent = gethui() or ClonedService("CoreGui");
-if __NATurtleParent and __NATurtleParent:FindFirstChild("TurtleSpyGUI") then
-	__NATurtleParent.TurtleSpyGUI:Destroy();
+local __NAOrbitParent = gethui() or ClonedService("CoreGui");
+if __NAOrbitParent and __NAOrbitParent:FindFirstChild("OrbitSpyGUI") then
+	__NAOrbitParent.OrbitSpyGUI:Destroy();
 end;
 local buttonOffset = -25;
 local scrollSizeOffset = 287;
@@ -357,7 +357,7 @@ tstate.connections = connections
 local unstacked = {}
 tstate.unstacked = unstacked
 
-local function syncTurtleStateCollections()
+local function syncOrbitStateCollections()
 	tstate.remotes = remotes
 	tstate.remoteArgs = remoteArgs
 	tstate.remoteButtons = remoteButtons
@@ -444,7 +444,7 @@ local function probeDirectNamecall()
 		return false
 	end
 	local probe = Instance.new("RemoteEvent")
-	probe.Name = "__TurtleSpyDirectHookProbe"
+	probe.Name = "__OrbitSpyDirectHookProbe"
 	probe.Parent = ClonedService("ReplicatedStorage")
 	local hit = false
 	local old
@@ -660,7 +660,7 @@ local function runAdonisBypass()
 		tstate.adonisBypassed = true
 	end
 end
-local TurtleSpyGUI = Instance.new("ScreenGui");
+local OrbitSpyGUI = Instance.new("ScreenGui");
 local mainFrame = Instance.new("Frame");
 local Header = Instance.new("Frame");
 local HeaderShading = Instance.new("Frame");
@@ -719,23 +719,23 @@ local CallsScroll = Instance.new("ScrollingFrame");
 local CallButton = Instance.new("TextButton");
 local ClientEventToggle = Instance.new("TextButton");
 local PathModeBtn = Instance.new("TextButton");
-TurtleSpyGUI.Name = "TurtleSpyGUI";
-TurtleSpyGUI.Parent = __NATurtleParent or ClonedService("CoreGui");
-TurtleSpyGUI.ResetOnSpawn = false;
-TurtleSpyGUI.IgnoreGuiInset = true;
-TurtleSpyGUI.DisplayOrder = 999999;
-TurtleSpyGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
+OrbitSpyGUI.Name = "OrbitSpyGUI";
+OrbitSpyGUI.Parent = __NAOrbitParent or ClonedService("CoreGui");
+OrbitSpyGUI.ResetOnSpawn = false;
+OrbitSpyGUI.IgnoreGuiInset = true;
+OrbitSpyGUI.DisplayOrder = 999999;
+OrbitSpyGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
 mainFrame.Name = "mainFrame";
-mainFrame.Parent = TurtleSpyGUI;
-mainFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72);
-mainFrame.BorderColor3 = Color3.fromRGB(53, 59, 72);
+mainFrame.Parent = OrbitSpyGUI;
+mainFrame.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
+mainFrame.BorderColor3 = colorSettings.Main.MainBackgroundColor;
 mainFrame.Position = UDim2.new(0.1, 0, 0.24, 0);
 mainFrame.Size = UDim2.new(0, 207, 0, 35);
 mainFrame.ZIndex = 8;
 mainFrame.Active = true;
 mainFrame.Draggable = true;
 BrowserHeader.Name = "BrowserHeader";
-BrowserHeader.Parent = TurtleSpyGUI;
+BrowserHeader.Parent = OrbitSpyGUI;
 BrowserHeader.BackgroundColor3 = colorSettings.Main.HeaderShadingColor;
 BrowserHeader.BorderColor3 = colorSettings.Main.HeaderShadingColor;
 BrowserHeader.Position = UDim2.new(0.7, 0, 0.34, 0);
@@ -770,12 +770,12 @@ CloseInfoFrame2.Size = UDim2.new(0, 20, 0, 20);
 CloseInfoFrame2.ZIndex = 38;
 CloseInfoFrame2.Font = Enum.Font.SourceSansLight;
 CloseInfoFrame2.Text = "X";
-CloseInfoFrame2.TextColor3 = Color3.fromRGB(0, 0, 0);
+CloseInfoFrame2.TextColor3 = Color3.fromRGB(255, 255, 255);
 CloseInfoFrame2.TextSize = 20;
 BrowserSearch.Name = "BrowserSearch";
 BrowserSearch.Parent = BrowserHeader;
-BrowserSearch.BackgroundColor3 = Color3.fromRGB(47, 54, 64);
-BrowserSearch.BorderColor3 = Color3.fromRGB(53, 59, 72);
+BrowserSearch.BackgroundColor3 = Color3.fromRGB(20, 20, 20);
+BrowserSearch.BorderColor3 = Color3.fromRGB(40, 40, 40);
 BrowserSearch.Position = UDim2.new(0, 8, 0, 30);
 BrowserSearch.Size = UDim2.new(0, 214, 0, 22);
 BrowserSearch.ZIndex = 21;
@@ -788,8 +788,8 @@ BrowserSearch.ClearTextOnFocus = false;
 RemoteBrowserFrame.Name = "RemoteBrowserFrame";
 RemoteBrowserFrame.Parent = BrowserHeader;
 RemoteBrowserFrame.Active = true;
-RemoteBrowserFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64);
-RemoteBrowserFrame.BorderColor3 = Color3.fromRGB(47, 54, 64);
+RemoteBrowserFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+RemoteBrowserFrame.BorderColor3 = Color3.fromRGB(0, 0, 0);
 RemoteBrowserFrame.Position = UDim2.new(0, 0, 0, 58);
 RemoteBrowserFrame.Size = UDim2.new(0, 230, 0, 252);
 RemoteBrowserFrame.ZIndex = 19;
@@ -832,7 +832,7 @@ RemoteIcon2.Size = UDim2.new(0, 24, 0, 24);
 RemoteIcon2.ZIndex = 21;
 RemoteIcon2.Image = functionImage;
 BrowseExecFrame.Name = "BrowseExecFrame";
-BrowseExecFrame.Parent = TurtleSpyGUI;
+BrowseExecFrame.Parent = OrbitSpyGUI;
 BrowseExecFrame.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
 BrowseExecFrame.BorderColor3 = colorSettings.Main.MainBackgroundColor;
 BrowseExecFrame.Position = UDim2.new(0.7, 0, 0.34, 0);
@@ -867,7 +867,7 @@ BrowseExecClose.Size = UDim2.new(0, 20, 0, 20);
 BrowseExecClose.ZIndex = 22;
 BrowseExecClose.Font = Enum.Font.SourceSans;
 BrowseExecClose.Text = "X";
-BrowseExecClose.TextColor3 = Color3.fromRGB(0, 0, 0);
+BrowseExecClose.TextColor3 = Color3.fromRGB(255, 255, 255);
 BrowseExecClose.TextSize = 16;
 BrowseExecArgsLabel.Name = "BrowseExecArgsLabel";
 BrowseExecArgsLabel.Parent = BrowseExecFrame;
@@ -882,8 +882,8 @@ BrowseExecArgsLabel.TextSize = 14;
 BrowseExecArgsLabel.TextXAlignment = Enum.TextXAlignment.Left;
 BrowseExecArgsBox.Name = "BrowseExecArgsBox";
 BrowseExecArgsBox.Parent = BrowseExecFrame;
-BrowseExecArgsBox.BackgroundColor3 = Color3.fromRGB(47, 54, 64);
-BrowseExecArgsBox.BorderColor3 = Color3.fromRGB(53, 59, 72);
+BrowseExecArgsBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20);
+BrowseExecArgsBox.BorderColor3 = Color3.fromRGB(40, 40, 40);
 BrowseExecArgsBox.Position = UDim2.new(0, 8, 0, 48);
 BrowseExecArgsBox.Size = UDim2.new(0, 214, 0, 22);
 BrowseExecArgsBox.ZIndex = 21;
@@ -905,8 +905,8 @@ BrowseExecTimesLabel.TextSize = 14;
 BrowseExecTimesLabel.TextXAlignment = Enum.TextXAlignment.Left;
 BrowseExecTimesBox.Name = "BrowseExecTimesBox";
 BrowseExecTimesBox.Parent = BrowseExecFrame;
-BrowseExecTimesBox.BackgroundColor3 = Color3.fromRGB(47, 54, 64);
-BrowseExecTimesBox.BorderColor3 = Color3.fromRGB(53, 59, 72);
+BrowseExecTimesBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20);
+BrowseExecTimesBox.BorderColor3 = Color3.fromRGB(40, 40, 40);
 BrowseExecTimesBox.Position = UDim2.new(0, 8, 0, 94);
 BrowseExecTimesBox.Size = UDim2.new(0, 80, 0, 22);
 BrowseExecTimesBox.ZIndex = 21;
@@ -924,7 +924,7 @@ BrowseExecRun.Size = UDim2.new(0, 100, 0, 26);
 BrowseExecRun.ZIndex = 21;
 BrowseExecRun.Font = Enum.Font.SourceSans;
 BrowseExecRun.Text = "Run";
-BrowseExecRun.TextColor3 = Color3.fromRGB(250, 251, 255);
+BrowseExecRun.TextColor3 = Color3.fromRGB(255, 255, 255);
 BrowseExecRun.TextSize = 16;
 BrowseExecLoop.Name = "BrowseExecLoop";
 BrowseExecLoop.Parent = BrowseExecFrame;
@@ -935,7 +935,7 @@ BrowseExecLoop.Size = UDim2.new(0, 100, 0, 26);
 BrowseExecLoop.ZIndex = 21;
 BrowseExecLoop.Font = Enum.Font.SourceSans;
 BrowseExecLoop.Text = "Loop: OFF";
-BrowseExecLoop.TextColor3 = Color3.fromRGB(250, 251, 255);
+BrowseExecLoop.TextColor3 = Color3.fromRGB(255, 255, 255);
 BrowseExecLoop.TextSize = 16;
 local browsedButtonOffset = 10;
 local browseRemotes = {};
@@ -1067,7 +1067,7 @@ BrowseExecLoop.MouseButton1Click:Connect(function()
 		browseLoop = false
 		browseLoopToken = browseLoopToken + 1
 		BrowseExecLoop.Text = "Loop: OFF"
-		BrowseExecLoop.TextColor3 = Color3.fromRGB(250, 251, 255)
+		BrowseExecLoop.TextColor3 = Color3.fromRGB(255, 255, 255)
 	end
 end)
 
@@ -1107,7 +1107,7 @@ HeaderTextLabel.Position = UDim2.new(-0.005, 0, -0.203, 0);
 HeaderTextLabel.Size = UDim2.new(0, 215, 0, 29);
 HeaderTextLabel.ZIndex = 10;
 HeaderTextLabel.Font = Enum.Font.SourceSans;
-HeaderTextLabel.Text = "Turtle Spy";
+HeaderTextLabel.Text = "OrbitSpy";
 HeaderTextLabel.TextColor3 = colorSettings.Main.HeaderTextColor;
 HeaderTextLabel.TextSize = 17;
 ImageButton.Parent = Header;
@@ -1117,12 +1117,12 @@ ImageButton.Position = UDim2.new(0, 8, 0, 8);
 ImageButton.Size = UDim2.new(0, 18, 0, 18);
 ImageButton.ZIndex = 9;
 ImageButton.Image = "rbxassetid://169476802";
-ImageButton.ImageColor3 = Color3.fromRGB(53, 53, 53);
+ImageButton.ImageColor3 = Color3.fromRGB(200, 200, 200);
 RemoteScrollFrame.Name = "RemoteScrollFrame";
 RemoteScrollFrame.Parent = mainFrame;
 RemoteScrollFrame.Active = true;
-RemoteScrollFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64);
-RemoteScrollFrame.BorderColor3 = Color3.fromRGB(47, 54, 64);
+RemoteScrollFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+RemoteScrollFrame.BorderColor3 = Color3.fromRGB(0, 0, 0);
 RemoteScrollFrame.Position = UDim2.new(0, 0, 1.0229, 0);
 RemoteScrollFrame.Size = UDim2.new(0, 207, 0, 286);
 RemoteScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 287);
@@ -1138,7 +1138,7 @@ RemoteButton.Size = UDim2.new(0, 182, 0, 26);
 RemoteButton.Selected = true;
 RemoteButton.Font = Enum.Font.SourceSans;
 RemoteButton.Text = "";
-RemoteButton.TextColor3 = Color3.fromRGB(220, 221, 225);
+RemoteButton.TextColor3 = Color3.fromRGB(255, 255, 255);
 RemoteButton.TextSize = 18;
 RemoteButton.TextStrokeTransparency = 123;
 RemoteButton.TextWrapped = true;
@@ -1225,7 +1225,7 @@ Code.Position = UDim2.new(0, 8, 0, 6);
 Code.Size = UDim2.new(0, 509, 0, 138);
 Code.ZIndex = 18;
 Code.Font = Enum.Font.Code;
-Code.Text = "Thanks for using Turtle Spy! :D";
+Code.Text = "Thanks for using OrbitSpy! :D";
 Code.TextColor3 = colorSettings.Code.TextColor;
 Code.TextSize = 14;
 Code.TextWrapped = false;
@@ -1262,7 +1262,7 @@ CopyCode.Size = UDim2.new(0, 248, 0, 22);
 CopyCode.ZIndex = 15;
 CopyCode.Font = Enum.Font.SourceSans;
 CopyCode.Text = "Copy code";
-CopyCode.TextColor3 = Color3.fromRGB(250, 251, 255);
+CopyCode.TextColor3 = Color3.fromRGB(255, 255, 255);
 CopyCode.TextSize = 14;
 RunCode.Name = "RunCode";
 RunCode.Parent = InfoButtonsScroll;
@@ -1273,7 +1273,7 @@ RunCode.Size = UDim2.new(0, 248, 0, 22);
 RunCode.ZIndex = 15;
 RunCode.Font = Enum.Font.SourceSans;
 RunCode.Text = "Execute";
-RunCode.TextColor3 = Color3.fromRGB(250, 251, 255);
+RunCode.TextColor3 = Color3.fromRGB(255, 255, 255);
 RunCode.TextSize = 14;
 CopyScriptPath.Name = "CopyScriptPath";
 CopyScriptPath.Parent = InfoButtonsScroll;
@@ -1284,7 +1284,7 @@ CopyScriptPath.Size = UDim2.new(0, 248, 0, 22);
 CopyScriptPath.ZIndex = 15;
 CopyScriptPath.Font = Enum.Font.SourceSans;
 CopyScriptPath.Text = "Copy script path";
-CopyScriptPath.TextColor3 = Color3.fromRGB(250, 251, 255);
+CopyScriptPath.TextColor3 = Color3.fromRGB(255, 255, 255);
 CopyScriptPath.TextSize = 14;
 CopyDecompiled.Name = "CopyDecompiled";
 CopyDecompiled.Parent = InfoButtonsScroll;
@@ -1295,7 +1295,7 @@ CopyDecompiled.Size = UDim2.new(0, 248, 0, 22);
 CopyDecompiled.ZIndex = 15;
 CopyDecompiled.Font = Enum.Font.SourceSans;
 CopyDecompiled.Text = "Copy decompiled script";
-CopyDecompiled.TextColor3 = Color3.fromRGB(250, 251, 255);
+CopyDecompiled.TextColor3 = Color3.fromRGB(255, 255, 255);
 CopyDecompiled.TextSize = 14;
 IgnoreRemote.Name = "IgnoreRemote";
 IgnoreRemote.Parent = InfoButtonsScroll;
@@ -1306,7 +1306,7 @@ IgnoreRemote.Size = UDim2.new(0, 248, 0, 22);
 IgnoreRemote.ZIndex = 15;
 IgnoreRemote.Font = Enum.Font.SourceSans;
 IgnoreRemote.Text = "Ignore remote";
-IgnoreRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
+IgnoreRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
 IgnoreRemote.TextSize = 14;
 BlockRemote.Name = "Block Remote";
 BlockRemote.Parent = InfoButtonsScroll;
@@ -1317,7 +1317,7 @@ BlockRemote.Size = UDim2.new(0, 248, 0, 22);
 BlockRemote.ZIndex = 15;
 BlockRemote.Font = Enum.Font.SourceSans;
 BlockRemote.Text = "Block remote from firing";
-BlockRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
+BlockRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
 BlockRemote.TextSize = 14;
 DoNotStack.Name = "DoNotStack";
 DoNotStack.Parent = InfoButtonsScroll;
@@ -1328,7 +1328,7 @@ DoNotStack.Size = UDim2.new(0, 248, 0, 22);
 DoNotStack.ZIndex = 15;
 DoNotStack.Font = Enum.Font.SourceSans;
 DoNotStack.Text = "Unstack new args";
-DoNotStack.TextColor3 = Color3.fromRGB(250, 251, 255);
+DoNotStack.TextColor3 = Color3.fromRGB(255, 255, 255);
 DoNotStack.TextSize = 14;
 Clear.Name = "Clear";
 Clear.Parent = InfoButtonsScroll;
@@ -1339,7 +1339,7 @@ Clear.Size = UDim2.new(0, 248, 0, 22);
 Clear.ZIndex = 15;
 Clear.Font = Enum.Font.SourceSans;
 Clear.Text = "Clear logs";
-Clear.TextColor3 = Color3.fromRGB(250, 251, 255);
+Clear.TextColor3 = Color3.fromRGB(255, 255, 255);
 Clear.TextSize = 14;
 CopyReturn.Name = "CopyReturn";
 CopyReturn.Parent = InfoButtonsScroll;
@@ -1350,7 +1350,7 @@ CopyReturn.Size = UDim2.new(0, 248, 0, 22);
 CopyReturn.ZIndex = 15;
 CopyReturn.Font = Enum.Font.SourceSans;
 CopyReturn.Text = "Execute and copy return value";
-CopyReturn.TextColor3 = Color3.fromRGB(250, 251, 255);
+CopyReturn.TextColor3 = Color3.fromRGB(255, 255, 255);
 CopyReturn.TextSize = 14;
 CopyReturn.Visible = false
 tstate.SpamRemote.Name = "SpamRemote";
@@ -1362,7 +1362,7 @@ tstate.SpamRemote.Size = UDim2.new(0, 248, 0, 22);
 tstate.SpamRemote.ZIndex = 15;
 tstate.SpamRemote.Font = Enum.Font.SourceSans;
 tstate.SpamRemote.Text = "Spam Remote: OFF";
-tstate.SpamRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
+tstate.SpamRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
 tstate.SpamRemote.TextSize = 14;
 tstate.SpamDelayBox.Name = "SpamDelayBox";
 tstate.SpamDelayBox.Parent = InfoButtonsScroll;
@@ -1374,7 +1374,7 @@ tstate.SpamDelayBox.ZIndex = 15;
 tstate.SpamDelayBox.Font = Enum.Font.SourceSans;
 tstate.SpamDelayBox.PlaceholderText = "Spam delay seconds";
 tstate.SpamDelayBox.Text = "0";
-tstate.SpamDelayBox.TextColor3 = Color3.fromRGB(250, 251, 255);
+tstate.SpamDelayBox.TextColor3 = Color3.fromRGB(255, 255, 255);
 tstate.SpamDelayBox.TextSize = 14;
 tstate.SpamDelayBox.ClearTextOnFocus = false;
 tstate.SpamMode.Name = "SpamMode";
@@ -1386,7 +1386,7 @@ tstate.SpamMode.Size = UDim2.new(0, 505, 0, 22);
 tstate.SpamMode.ZIndex = 15;
 tstate.SpamMode.Font = Enum.Font.SourceSans;
 tstate.SpamMode.Text = "Spam Mode: PreSimulation";
-tstate.SpamMode.TextColor3 = Color3.fromRGB(250, 251, 255);
+tstate.SpamMode.TextColor3 = Color3.fromRGB(255, 255, 255);
 tstate.SpamMode.TextSize = 14;
 ClientEventToggle.Name = "ClientEventToggle";
 ClientEventToggle.Parent = InfoButtonsScroll;
@@ -1397,7 +1397,7 @@ ClientEventToggle.Size = UDim2.new(0, 248, 0, 22);
 ClientEventToggle.ZIndex = 15;
 ClientEventToggle.Font = Enum.Font.SourceSans;
 ClientEventToggle.Text = "Log OnClientEvent: OFF";
-ClientEventToggle.TextColor3 = Color3.fromRGB(250, 251, 255);
+ClientEventToggle.TextColor3 = Color3.fromRGB(255, 255, 255);
 ClientEventToggle.TextSize = 14;
 PathModeBtn.Name = "PathModeBtn";
 PathModeBtn.Parent = InfoButtonsScroll;
@@ -1408,12 +1408,12 @@ PathModeBtn.Size = UDim2.new(0, 248, 0, 22);
 PathModeBtn.ZIndex = 15;
 PathModeBtn.Font = Enum.Font.SourceSans;
 PathModeBtn.Text = "Path: .";
-PathModeBtn.TextColor3 = Color3.fromRGB(250, 251, 255);
+PathModeBtn.TextColor3 = Color3.fromRGB(255, 255, 255);
 PathModeBtn.TextSize = 14;
 FrameDivider.Name = "FrameDivider";
 FrameDivider.Parent = InfoFrame;
-FrameDivider.BackgroundColor3 = Color3.fromRGB(53, 59, 72);
-FrameDivider.BorderColor3 = Color3.fromRGB(53, 59, 72);
+FrameDivider.BackgroundColor3 = Color3.fromRGB(30, 30, 30);
+FrameDivider.BorderColor3 = Color3.fromRGB(30, 30, 30);
 FrameDivider.Position = UDim2.new(0, 3, 0, 0);
 FrameDivider.Size = UDim2.new(0, 4, 0, 322);
 FrameDivider.ZIndex = 7;
@@ -1427,7 +1427,7 @@ CloseInfoFrame.Size = UDim2.new(0, 22, 0, 22);
 CloseInfoFrame.ZIndex = 18;
 CloseInfoFrame.Font = Enum.Font.SourceSansLight;
 CloseInfoFrame.Text = "X";
-CloseInfoFrame.TextColor3 = Color3.fromRGB(0, 0, 0);
+CloseInfoFrame.TextColor3 = Color3.fromRGB(255, 255, 255);
 CloseInfoFrame.TextSize = 20;
 OpenInfoFrame.Name = "OpenInfoFrame";
 OpenInfoFrame.Parent = mainFrame;
@@ -1438,7 +1438,7 @@ OpenInfoFrame.Size = UDim2.new(0, 22, 0, 22);
 OpenInfoFrame.ZIndex = 18;
 OpenInfoFrame.Font = Enum.Font.SourceSans;
 OpenInfoFrame.Text = ">";
-OpenInfoFrame.TextColor3 = Color3.fromRGB(0, 0, 0);
+OpenInfoFrame.TextColor3 = Color3.fromRGB(255, 255, 255);
 OpenInfoFrame.TextSize = 16;
 Minimize.Name = "Minimize";
 Minimize.Parent = mainFrame;
@@ -1449,7 +1449,7 @@ Minimize.Size = UDim2.new(0, 22, 0, 22);
 Minimize.ZIndex = 18;
 Minimize.Font = Enum.Font.SourceSans;
 Minimize.Text = "_";
-Minimize.TextColor3 = Color3.fromRGB(0, 0, 0);
+Minimize.TextColor3 = Color3.fromRGB(255, 255, 255);
 Minimize.TextSize = 16;
 CallsScroll.Name = "CallsScroll";
 CallsScroll.Parent = InfoFrame;
@@ -1473,10 +1473,10 @@ CallButton.Size = UDim2.new(0, 505, 0, 24);
 CallButton.ZIndex = 31;
 CallButton.Font = Enum.Font.SourceSans;
 CallButton.Text = "Call #1";
-CallButton.TextColor3 = Color3.fromRGB(250, 251, 255);
+CallButton.TextColor3 = Color3.fromRGB(255, 255, 255);
 CallButton.TextSize = 14;
 CallButton.Visible = false;
-__NAProtectUI(TurtleSpyGUI);
+__NAProtectUI(OrbitSpyGUI);
 local defaultButtonState = {}
 local function ButtonEffect(textlabel, text)
 	if not textlabel then
@@ -1745,7 +1745,7 @@ local function updateCodeDisplay(remote, args, isClientEvent, callType)
 	local finalText
 	if not ok then
 		local pathOk, path = pcall(GetFullPathOfAnInstance, remote)
-		finalText = "-- Turtle Spy render error: " .. tostring(codeText) .. "\n" .. tostring(pathOk and path or remote)
+		finalText = "-- OrbitSpy render error: " .. tostring(codeText) .. "\n" .. tostring(pathOk and path or remote)
 	else
 		finalText = codeText
 	end
@@ -1753,7 +1753,7 @@ local function updateCodeDisplay(remote, args, isClientEvent, callType)
 		Code.Text = finalText
 	end)
 	if not okSet then
-		Code.Text = "-- Turtle Spy text render error. The args contained invalid text bytes.\n" .. tostring(remote)
+		Code.Text = "-- OrbitSpy text render error. The args contained invalid text bytes.\n" .. tostring(remote)
 	end
 	Code.TextWrapped = false
 	fitCode()
@@ -1798,7 +1798,7 @@ tstate.spamRemote = {
 
 tstate.spamRemote.refreshControls = function()
 	tstate.SpamRemote.Text = "Spam Remote: " .. (tstate.spamRemote.enabled and "ON" or "OFF")
-	tstate.SpamRemote.TextColor3 = tstate.spamRemote.enabled and Color3.fromRGB(76, 209, 55) or Color3.fromRGB(250, 251, 255)
+	tstate.SpamRemote.TextColor3 = tstate.spamRemote.enabled and Color3.fromRGB(76, 209, 55) or Color3.fromRGB(255, 255, 255)
 	tstate.SpamMode.Text = "Spam Mode: " .. tstate.spamRemote.modes[tstate.spamRemote.modeIndex]
 	tstate.SpamDelayBox.Text = ("%g"):format(tstate.spamRemote.delay)
 end
@@ -1989,6 +1989,12 @@ local function disableIncomingHooks()
 		end)
 		descAddedInvokeConn = nil
 	end
+	if descAddedConn then
+		pcall(function()
+			descAddedConn:Disconnect()
+		end)
+		descAddedConn = nil
+	end
 	if tstate.oldNewIndex then
 		local restored = hookMetaMethod and pcall(function()
 			hookMetaMethod(game, "__newindex", tstate.oldNewIndex)
@@ -2120,7 +2126,7 @@ CopyDecompiled.MouseButton1Click:Connect(function()
 		CopyDecompiled.TextColor3 = Color3.fromRGB(232, 65, 24);
 		task.wait(1.6);
 		CopyDecompiled.Text = "Copy decompiled script";
-		CopyDecompiled.TextColor3 = Color3.fromRGB(250, 251, 255);
+		CopyDecompiled.TextColor3 = Color3.fromRGB(255, 255, 255);
 		return;
 	end;
 	if not decompiling and remoteIdx and lookingAt then
@@ -2157,7 +2163,7 @@ CopyDecompiled.MouseButton1Click:Connect(function()
 		end;
 		task.wait(1.6);
 		CopyDecompiled.Text = "Copy decompiled script";
-		CopyDecompiled.TextColor3 = Color3.fromRGB(250, 251, 255);
+		CopyDecompiled.TextColor3 = Color3.fromRGB(255, 255, 255);
 	end;
 end);
 BlockRemote.MouseButton1Click:Connect(function()
@@ -2186,14 +2192,14 @@ BlockRemote.MouseButton1Click:Connect(function()
 		table.remove(BlockList, idx)
 		refreshBlockNamecall()
 		BlockRemote.Text = "Block remote from firing"
-		BlockRemote.TextColor3 = Color3.fromRGB(250, 251, 255)
+		BlockRemote.TextColor3 = Color3.fromRGB(255, 255, 255)
 		local rIndex = table.find(remotes, lookingAt)
 		if rIndex then
 			local num = remoteButtons[rIndex]
 			if num and num.Parent then
 				local rn = num.Parent:FindFirstChild("RemoteName")
 				if rn then
-					rn.TextColor3 = Color3.fromRGB(245, 246, 250)
+					rn.TextColor3 = Color3.fromRGB(255, 255, 255);
 				end
 			end
 		end
@@ -2218,14 +2224,14 @@ IgnoreRemote.MouseButton1Click:Connect(function()
 	elseif lookingAt and idx then
 		table.remove(IgnoreList, idx);
 		IgnoreRemote.Text = "Ignore remote";
-		IgnoreRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
+		IgnoreRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
 		local rIndex = table.find(remotes, lookingAt);
 		if rIndex then
 			local num = remoteButtons[rIndex];
 			if num and num.Parent then
 				local rn = num.Parent:FindFirstChild("RemoteName");
 				if rn then
-					rn.TextColor3 = Color3.fromRGB(245, 246, 250);
+					rn.TextColor3 = Color3.fromRGB(255, 255, 255);
 				end;
 			end;
 		end;
@@ -2261,7 +2267,7 @@ Clear.MouseButton1Click:Connect(function()
 	refreshBlockNamecall();
 	unstacked = {};
 	connections = {};
-	syncTurtleStateCollections();
+	syncOrbitStateCollections();
 	RemoteScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 287);
 	ButtonEffect(Clear, "Cleared!");
 end);
@@ -2271,7 +2277,7 @@ DoNotStack.MouseButton1Click:Connect(function()
 		if isUnstacked then
 			table.remove(unstacked, isUnstacked);
 			DoNotStack.Text = "Unstack new args";
-			DoNotStack.TextColor3 = Color3.fromRGB(245, 246, 250);
+			DoNotStack.TextColor3 = Color3.fromRGB(255, 255, 255);
 		else
 			table.insert(unstacked, lookingAt);
 			DoNotStack.Text = "Stack remote";
@@ -2351,7 +2357,7 @@ RemoteScrollFrame.ChildAdded:Connect(function(child)
 			BlockRemote.TextColor3 = Color3.fromRGB(251, 197, 49)
 		else
 			BlockRemote.Text = "Block remote from firing"
-			BlockRemote.TextColor3 = Color3.fromRGB(250, 251, 255)
+			BlockRemote.TextColor3 = Color3.fromRGB(255, 255, 255)
 		end
 		local iRemote = table.find(IgnoreList, lookingAt)
 		if iRemote then
@@ -2359,7 +2365,7 @@ RemoteScrollFrame.ChildAdded:Connect(function(child)
 			IgnoreRemote.TextColor3 = Color3.fromRGB(127, 143, 166)
 		else
 			IgnoreRemote.Text = "Ignore remote"
-			IgnoreRemote.TextColor3 = Color3.fromRGB(250, 251, 255)
+			IgnoreRemote.TextColor3 = Color3.fromRGB(255, 255, 255)
 		end
 		InfoFrameOpen = true
 	end)
@@ -2475,7 +2481,7 @@ ClientEventToggle.MouseButton1Click:Connect(function()
 	if logClientEvents then
 		disableIncomingHooks();
 		ClientEventToggle.Text = "Log OnClientEvent: OFF";
-		ClientEventToggle.TextColor3 = Color3.fromRGB(250, 251, 255);
+		ClientEventToggle.TextColor3 = Color3.fromRGB(255, 255, 255);
 	else
 		enableIncomingHooks();
 		ClientEventToggle.Text = "Log OnClientEvent: ON";
@@ -2545,7 +2551,7 @@ Minimize.MouseButton1Click:Connect(function()
 end);
 table.insert(connections, mouse.KeyDown:Connect(function(key)
 	if key:lower() == settings.Keybind:lower() then
-		TurtleSpyGUI.Enabled = not TurtleSpyGUI.Enabled;
+		OrbitSpyGUI.Enabled = not OrbitSpyGUI.Enabled;
 	end;
 end));
 if tstate.directColonSupported == nil then
@@ -2640,7 +2646,7 @@ tstate.handler = function(self, method, args, results)
 end
 refreshBlockNamecall()
 
-local function installTurtleSpyMCP()
+local function installOrbitSpyMCP()
 	local options = type(tstate.mcpOptions) == "table" and tstate.mcpOptions or {}
 	tstate.mcpOptions = options
 	if options.allowUIAccess == nil then
@@ -2988,9 +2994,9 @@ local function installTurtleSpyMCP()
 	local bridge = type(tstate.mcp) == "table" and tstate.mcp or {}
 	tstate.mcp = bridge
 
-	bridge.name = "Turtle Spy MCP Bridge"
+	bridge.name = "OrbitSpy MCP Bridge"
 	bridge.version = 1
-	bridge.kind = "turtle-spy"
+	bridge.kind = "orbit-spy"
 	bridge.ready = true
 	bridge.helpers = {
 		"ping",
@@ -3298,7 +3304,7 @@ local function installTurtleSpyMCP()
 			else
 				disableIncomingHooks()
 				ClientEventToggle.Text = "Log OnClientEvent: OFF"
-				ClientEventToggle.TextColor3 = Color3.fromRGB(250, 251, 255)
+				ClientEventToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
 			end
 			record("incoming", tostring(enabled == true))
 		end
@@ -3347,7 +3353,7 @@ local function installTurtleSpyMCP()
 		callLocked = false
 		RemoteScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 287)
 		CallsScroll.Visible = false
-		syncTurtleStateCollections()
+		syncOrbitStateCollections()
 		record("clear", "logs and rules")
 		return { ok = true }
 	end
@@ -3356,15 +3362,15 @@ local function installTurtleSpyMCP()
 		record("ui", options.allowUIAccess == true and "granted" or "metadata")
 		local info = {
 			ok = true,
-			hasUI = typeof(TurtleSpyGUI) == "Instance",
-			enabled = typeof(TurtleSpyGUI) == "Instance" and TurtleSpyGUI.Enabled or false,
+			hasUI = typeof(OrbitSpyGUI) == "Instance",
+			enabled = typeof(OrbitSpyGUI) == "Instance" and OrbitSpyGUI.Enabled or false,
 			allowUIAccess = options.allowUIAccess == true,
 		}
-		if typeof(TurtleSpyGUI) == "Instance" then
-			info.name = TurtleSpyGUI.Name
-			info.parentClassName = TurtleSpyGUI.Parent and TurtleSpyGUI.Parent.ClassName or nil
+		if typeof(OrbitSpyGUI) == "Instance" then
+			info.name = OrbitSpyGUI.Name
+			info.parentClassName = OrbitSpyGUI.Parent and OrbitSpyGUI.Parent.ClassName or nil
 			if options.allowUIAccess == true then
-				info.instance = TurtleSpyGUI
+				info.instance = OrbitSpyGUI
 			end
 		end
 		return info
@@ -3402,10 +3408,10 @@ local function installTurtleSpyMCP()
 
 	for _, target in targets do
 		pcall(function()
-			target.TURTLESPY_MCP = bridge
-			target.TurtleSpyMCP = bridge
-			target.TSPY_MCP = bridge
-			target.TURTLESPY_MCP_OPTIONS = options
+			target.ORBITSPY_MCP = bridge
+			target.OrbitSpyMCP = bridge
+			target.OSPY_MCP = bridge
+			target.ORBITSPY_MCP_OPTIONS = options
 		end)
 	end
 
@@ -3414,8 +3420,8 @@ local function installTurtleSpyMCP()
 	return bridge
 end
 
-syncTurtleStateCollections()
-installTurtleSpyMCP()
+syncOrbitStateCollections()
+installOrbitSpyMCP()
 runAdonisBypass()
 tstate.cleanup = function()
 	tstate.enabled = false;
@@ -3426,14 +3432,14 @@ tstate.cleanup = function()
 		for _, target in targets do
 			if type(target) == "table" then
 				pcall(function()
-					if rawget(target, "TURTLESPY_MCP") == mcpBridge then
-						target.TURTLESPY_MCP = nil
+					if rawget(target, "ORBITSPY_MCP") == mcpBridge then
+						target.ORBITSPY_MCP = nil
 					end
-					if rawget(target, "TurtleSpyMCP") == mcpBridge then
-						target.TurtleSpyMCP = nil
+					if rawget(target, "OrbitSpyMCP") == mcpBridge then
+						target.OrbitSpyMCP = nil
 					end
-					if rawget(target, "TSPY_MCP") == mcpBridge then
-						target.TSPY_MCP = nil
+					if rawget(target, "OSPY_MCP") == mcpBridge then
+						target.OSPY_MCP = nil
 					end
 				end)
 			end
@@ -3524,9 +3530,9 @@ tstate.cleanup = function()
 	wrappedClientInvoke = {}
 	wrappedInvokeCallbacks = {}
 	_origClientInvoke = {}
-	if TurtleSpyGUI and TurtleSpyGUI.Parent then
+	if OrbitSpyGUI and OrbitSpyGUI.Parent then
 		pcall(function()
-			TurtleSpyGUI:Destroy()
+			OrbitSpyGUI:Destroy()
 		end)
 	end
 end;
