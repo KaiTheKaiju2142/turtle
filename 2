@@ -1,7 +1,7 @@
 --!nonstrict
 
-local build = "shared_hui_singleton_v4"
-local patch = "luau_module_global_gethui_override_coregui_folder_v8"
+local build = "OrbitSpy_singleton_v4"
+local patch = "OrbitSpy_hui_override_v8"
 
 type AnyTable = { [any]: any }
 type PropertyMap = { [string]: any }
@@ -28,7 +28,7 @@ if type(sharedEnv) ~= "table" then
 	end)
 end
 
-local cacheKey = "__lt_ui_protector"
+local cacheKey = "__OrbitSpy_protector"
 local cacheHosts: { AnyTable } = {}
 
 local function addCacheHost(t)
@@ -92,7 +92,7 @@ if type(cached) == "table" then
 	end)
 end
 
-local protector: AnyTable = {}
+local OrbitSpy: AnyTable = {}
 
 local state: AnyTable = {
 	customHui = nil,
@@ -244,11 +244,11 @@ local function getFunc(name)
 	return nil
 end
 
-function protector.has(name: string): boolean
+function OrbitSpy.has(name: string): boolean
 	return type(getFunc(name)) == "function"
 end
 
-function protector.getFunction(name: string): any
+function OrbitSpy.getFunction(name: string): any
 	return getFunc(name)
 end
 
@@ -537,7 +537,7 @@ local function applyHardenDescendant(d, rename)
 
 	if rename then
 		pcall(function()
-			d.Name = protector.randomString()
+			d.Name = OrbitSpy.randomString()
 		end)
 	end
 end
@@ -660,7 +660,7 @@ end
 
 local function nextSessionKey(prefix)
 	state.sessionNameCounter = (tonumber(state.sessionNameCounter) or 0) + 1
-	return tostring(prefix or "session") .. ":" .. tostring(state.sessionNameCounter) .. ":" .. tostring(os.clock())
+	return tostring(prefix or "OrbitSpy_session") .. ":" .. tostring(state.sessionNameCounter) .. ":" .. tostring(os.clock())
 end
 
 local glyphs = {"\u{0482}", "\u{046E}", "\u{04FE}", "\u{A66E}", "\u{A66C}", "\u{22C7}", "\u{22C8}", "\u{2317}", "\u{2301}", "\u{235F}", "\u{2573}", "\u{27C1}", "\u{29C6}", "\u{29C9}", "\u{FFFD}"}
@@ -743,7 +743,7 @@ local function localSessionName(key, keep)
 	return ret
 end
 
-function protector.setSessionNameProvider(fn: any): boolean
+function OrbitSpy.setSessionNameProvider(fn: any): boolean
 	state.sessionNameProvider = type(fn) == "function" and fn or nil
 	return state.sessionNameProvider ~= nil
 end
@@ -760,16 +760,16 @@ local function sessName(key, keep)
 	return localSessionName(key, keep)
 end
 
-function protector.getSessionInstanceName(key: any): string
+function OrbitSpy.getSessionInstanceName(key: any): string
 	return sessName(key, key and true or false)
 end
 
-function protector.randomString(key: any): string
+function OrbitSpy.randomString(key: any): string
 	local sess = sessName(key or nextSessionKey("random"), key and true or false)
 	return cursedString(sess).."\0"
 end
 
-function protector.nativeProtect(obj: any): any
+function OrbitSpy.nativeProtect(obj: any): any
 	if not isInstance(obj) then
 		return obj
 	end
@@ -791,7 +791,7 @@ function protector.nativeProtect(obj: any): any
 	return obj
 end
 
-function protector.setTableReadonly(tbl: any, value: any): any
+function OrbitSpy.setTableReadonly(tbl: any, value: any): any
 	if type(tbl) ~= "table" then
 		return tbl
 	end
@@ -825,7 +825,7 @@ local function rawHui()
 	return state.rawHui
 end
 
-function protector.rawHuiGrabber(): Instance?
+function OrbitSpy.rawHuiGrabber(): Instance?
 	return rawHui()
 end
 
@@ -900,11 +900,11 @@ local function huiKind(obj)
 	return "other"
 end
 
-function protector.getRawHuiKind(): string?
+function OrbitSpy.getRawHuiKind(): string?
 	return huiKind(rawHui())
 end
 
-function protector.getBaseParent(): Instance?
+function OrbitSpy.getBaseParent(): Instance?
 	local coreGui = getService("CoreGui")
 
 	if isInstance(coreGui) then
@@ -937,12 +937,12 @@ local function getFolderParent(parent)
 		end
 	end
 
-	return protector.getBaseParent()
+	return OrbitSpy.getBaseParent()
 end
 
-local sharedRootKey = "lt-ui-protector-shared-root-v2"
-local roleAttr = "__lt_ui_protector_role"
-local keyAttr = "__lt_ui_protector_key"
+local sharedRootKey = "OrbitSpy-shared-root-v2"
+local roleAttr = "__OrbitSpy_role"
+local keyAttr = "__OrbitSpy_key"
 local roleHui = "hui"
 local roleScreen = "screen"
 
@@ -1075,7 +1075,7 @@ startWatchdog = function()
 	end)
 end
 
-function protector.lockInstance(obj: any, props: PropertyMap): any
+function OrbitSpy.lockInstance(obj: any, props: PropertyMap): any
 	if not isInstance(obj) or type(props) ~= "table" then
 		return obj
 	end
@@ -1142,7 +1142,7 @@ function protector.lockInstance(obj: any, props: PropertyMap): any
 	return obj
 end
 
-function protector.harden(obj: any, opts: any): any
+function OrbitSpy.harden(obj: any, opts: any): any
 	if not isInstance(obj) then
 		return obj
 	end
@@ -1151,7 +1151,7 @@ function protector.harden(obj: any, opts: any): any
 
 	if opts.rename then
 		pcall(function()
-			obj.Name = protector.randomString()
+			obj.Name = OrbitSpy.randomString()
 		end)
 	end
 
@@ -1173,7 +1173,7 @@ function protector.harden(obj: any, opts: any): any
 	return obj
 end
 
-function protector.protectInstance(obj: any, opts: any): any
+function OrbitSpy.protectInstance(obj: any, opts: any): any
 	if not isInstance(obj) then
 		return nil
 	end
@@ -1183,7 +1183,7 @@ function protector.protectInstance(obj: any, opts: any): any
 
 	local protectedName = nil
 	if opts.renameRoot == true then
-		protectedName = type(opts.name) == "string" and opts.name ~= "" and opts.name or protector.randomString(opts.nameKey)
+		protectedName = type(opts.name) == "string" and opts.name ~= "" and opts.name or OrbitSpy.randomString(opts.nameKey)
 		pcall(function()
 			obj.Name = protectedName
 		end)
@@ -1213,13 +1213,13 @@ function protector.protectInstance(obj: any, opts: any): any
 	end
 
 	if opts.register ~= false and next(props) ~= nil then
-		protector.lockInstance(obj, props)
+		OrbitSpy.lockInstance(obj, props)
 	end
 
 	return obj
 end
 
-function protector.protectCachedInternal(obj: any, opts: any): any
+function OrbitSpy.protectCachedInternal(obj: any, opts: any): any
 	opts = type(opts) == "table" and opts or {}
 	opts.renameRoot = opts.renameRoot ~= false
 	opts.renameDescendants = opts.renameDescendants == true
@@ -1227,7 +1227,7 @@ function protector.protectCachedInternal(obj: any, opts: any): any
 	opts.parent = nil
 	opts.enforceName = opts.enforceName == true
 
-	return protector.protectInstance(obj, opts)
+	return OrbitSpy.protectInstance(obj, opts)
 end
 
 local function applyScreenDefaults(gui, opts)
@@ -1294,10 +1294,10 @@ end
 
 local function protectFolder(folder, parent, name)
 	markSharedContainer(folder, roleHui)
-	protector.nativeProtect(folder)
+	OrbitSpy.nativeProtect(folder)
 
-	return protector.lockInstance(folder, {
-		Name = type(name) == "string" and name ~= "" and name or protector.randomString("hui"),
+	return OrbitSpy.lockInstance(folder, {
+		Name = type(name) == "string" and name ~= "" and name or OrbitSpy.randomString("OrbitSpy_hui"),
 		Parent = parent,
 	})
 end
@@ -1305,22 +1305,22 @@ end
 local function protectScreen(gui, parent, name)
 	markSharedContainer(gui, roleScreen)
 	applyScreenDefaults(gui)
-	protector.nativeProtect(gui)
+	OrbitSpy.nativeProtect(gui)
 
-	return protector.lockInstance(gui, {
-		Name = type(name) == "string" and name ~= "" and name or protector.randomString("screen"),
+	return OrbitSpy.lockInstance(gui, {
+		Name = type(name) == "string" and name ~= "" and name or OrbitSpy.randomString("OrbitSpy_screen"),
 		Parent = parent,
 	})
 end
 
 local function protectNativeScreen(gui)
 	applyScreenDefaults(gui)
-	protector.nativeProtect(gui)
+	OrbitSpy.nativeProtect(gui)
 
 	local par = getProperty(gui, "Parent")
 
 	if isInstance(par) then
-		protector.lockInstance(gui, {
+		OrbitSpy.lockInstance(gui, {
 			Parent = par,
 		})
 	end
@@ -1328,7 +1328,7 @@ local function protectNativeScreen(gui)
 	return gui
 end
 
-function protector.getCustomHui(parent: any): Instance?
+function OrbitSpy.getCustomHui(parent: any): Instance?
 	parent = getFolderParent(parent)
 
 	if not isInstance(parent) then
@@ -1413,7 +1413,7 @@ local function absorbScreenHui(screen)
 		return nil
 	end
 
-	local folder = protector.getCustomHui(screen)
+	local folder = OrbitSpy.getCustomHui(screen)
 	if not isInstance(folder) then
 		return nil
 	end
@@ -1447,8 +1447,8 @@ local function absorbScreenHui(screen)
 	return folder
 end
 
-function protector.huiGrabber(): Instance?
-	local hidden = protector.rawHuiGrabber()
+function OrbitSpy.huiGrabber(): Instance?
+	local hidden = OrbitSpy.rawHuiGrabber()
 	local kind = huiKind(hidden)
 
 	if isInstance(hidden) then
@@ -1465,17 +1465,17 @@ function protector.huiGrabber(): Instance?
 		end
 
 		if kind == "alias" then
-			return protector.getCustomHui(hidden)
+			return OrbitSpy.getCustomHui(hidden)
 		end
 
 		return hidden
 	end
 
-	return protector.getCustomHui()
+	return OrbitSpy.getCustomHui()
 end
 
-function protector.getScreenGui(name: any): Instance?
-	local hidden = protector.huiGrabber()
+function OrbitSpy.getScreenGui(name: any): Instance?
+	local hidden = OrbitSpy.huiGrabber()
 
 	if isInstance(hidden) and isA(hidden, "ScreenGui") then
 		state.screenGui = hidden
@@ -1504,7 +1504,7 @@ function protector.getScreenGui(name: any): Instance?
 	return protectScreen(gui, hidden, name)
 end
 
-function protector.resolveParent(opts: any): Instance?
+function OrbitSpy.resolveParent(opts: any): Instance?
 	opts = type(opts) == "table" and opts or {}
 
 	local fromResolver = tryCall(opts.parentResolver)
@@ -1516,31 +1516,31 @@ function protector.resolveParent(opts: any): Instance?
 		return cloneRef(opts.parent)
 	end
 
-	local hidden = protector.huiGrabber()
+	local hidden = OrbitSpy.huiGrabber()
 	if isInstance(hidden) then
 		return hidden
 	end
 
-	return protector.getCustomHui()
+	return OrbitSpy.getCustomHui()
 end
 
-function protector.parent(): Instance?
-	return protector.huiGrabber()
+function OrbitSpy.parent(): Instance?
+	return OrbitSpy.huiGrabber()
 end
 
-function protector.protectUI(gui: any, opts: any): any
+function OrbitSpy.protectUI(gui: any, opts: any): any
 	if not isInstance(gui) then
 		return nil
 	end
 
 	opts = type(opts) == "table" and opts or {}
 
-	protector.nativeProtect(gui)
+	OrbitSpy.nativeProtect(gui)
 
 	if isA(gui, "ScreenGui") then
 		applyScreenDefaults(gui, opts)
 
-		local target = protector.resolveParent(opts)
+		local target = OrbitSpy.resolveParent(opts)
 		if not isInstance(target) then
 			return nil
 		end
@@ -1554,13 +1554,13 @@ function protector.protectUI(gui: any, opts: any): any
 		}
 
 		if not opts.keepName then
-			props.Name = type(opts.name) == "string" and opts.name ~= "" and opts.name or protector.randomString()
+			props.Name = type(opts.name) == "string" and opts.name ~= "" and opts.name or OrbitSpy.randomString()
 		end
 
-		protector.lockInstance(gui, props)
+		OrbitSpy.lockInstance(gui, props)
 
 		if opts.harden == true then
-			protector.harden(gui, {
+			OrbitSpy.harden(gui, {
 				deep = opts.deep == true,
 				watch = opts.watch == true,
 				rename = opts.rename == true,
@@ -1570,7 +1570,7 @@ function protector.protectUI(gui: any, opts: any): any
 		return gui
 	end
 
-	local target = protector.getScreenGui()
+	local target = OrbitSpy.getScreenGui()
 	if not isInstance(target) then
 		return nil
 	end
@@ -1580,13 +1580,13 @@ function protector.protectUI(gui: any, opts: any): any
 	}
 
 	if opts.lockName == true then
-		props.Name = type(opts.name) == "string" and opts.name ~= "" and opts.name or protector.randomString()
+		props.Name = type(opts.name) == "string" and opts.name ~= "" and opts.name or OrbitSpy.randomString()
 	end
 
-	protector.lockInstance(gui, props)
+	OrbitSpy.lockInstance(gui, props)
 
 	if opts.harden == true then
-		protector.harden(gui, {
+		OrbitSpy.harden(gui, {
 			deep = opts.deep == true,
 			watch = opts.watch == true,
 			rename = opts.rename == true,
@@ -1596,21 +1596,21 @@ function protector.protectUI(gui: any, opts: any): any
 	return gui
 end
 
-function protector.protectName(obj: any, prop: any): any
+function OrbitSpy.protectName(obj: any, prop: any): any
 	if not isInstance(obj) then
 		return nil
 	end
 
 	pcall(function()
-		obj[prop or "Name"] = protector.randomString()
+		obj[prop or "Name"] = OrbitSpy.randomString()
 	end)
 
 	return obj
 end
 
-function protector.installGetHuiOverride(): boolean
+function OrbitSpy.installGetHuiOverride(): boolean
 	local function customGetHui()
-		return protector.huiGrabber()
+		return OrbitSpy.huiGrabber()
 	end
 
 	local installed = false
@@ -1662,17 +1662,17 @@ function protector.installGetHuiOverride(): boolean
 	state.installed = installed or okGenv or okG
 
 	pcall(function()
-		protector.getHuiOverrideInstalled = state.installed
+		OrbitSpy.getHuiOverrideInstalled = state.installed
 	end)
 
 	return state.installed
 end
 
-function protector.install(): boolean
-	return protector.installGetHuiOverride()
+function OrbitSpy.install(): boolean
+	return OrbitSpy.installGetHuiOverride()
 end
 
-function protector.restore(): ()
+function OrbitSpy.restore(): ()
 	local native = state.nativeHuiFns
 	local names = {
 		gethui = native.gethui,
@@ -1712,11 +1712,11 @@ function protector.restore(): ()
 	state.installed = false
 
 	pcall(function()
-		protector.getHuiOverrideInstalled = false
+		OrbitSpy.getHuiOverrideInstalled = false
 	end)
 end
 
-function protector.cleanup(obj: any?): ()
+function OrbitSpy.cleanup(obj: any?): ()
 	if isInstance(obj) then
 		local list = state.connections[obj]
 
@@ -1796,9 +1796,9 @@ function protector.cleanup(obj: any?): ()
 	end
 end
 
-function protector.destroy(): ()
-	protector.cleanup()
-	protector.restore()
+function OrbitSpy.destroy(): ()
+	OrbitSpy.cleanup()
+	OrbitSpy.restore()
 
 	pcall(function()
 		if isInstance(state.screenGui) then
@@ -1819,7 +1819,7 @@ function protector.destroy(): ()
 	state.customHui = nil
 end
 
-function protector.support(): AnyTable
+function OrbitSpy.support(): AnyTable
 	local names = {
 		"gethui",
 		"gethiddenui",
@@ -1839,16 +1839,16 @@ function protector.support(): AnyTable
 	local result = {}
 
 	for i = 1, #names do
-		result[names[i]] = protector.has(names[i])
+		result[names[i]] = OrbitSpy.has(names[i])
 	end
 
 	return result
 end
 
-function protector.status(): AnyTable
+function OrbitSpy.status(): AnyTable
 	local raw = rawHui()
-	local parent = protector.huiGrabber()
-	local screen = protector.getScreenGui()
+	local parent = OrbitSpy.huiGrabber()
+	local screen = OrbitSpy.getScreenGui()
 
 	return {
 		build = build,
@@ -1866,22 +1866,22 @@ function protector.status(): AnyTable
 		screenPath = getPath(screen),
 		installed = state.installed,
 		tracked = trackedCount(),
-		support = protector.support(),
+		support = OrbitSpy.support(),
 	}
 end
 
-protector.ready = true
-protector.build = build
-protector.patch = patch
+OrbitSpy.ready = true
+OrbitSpy.build = build
+OrbitSpy.patch = patch
 
 pcall(function()
-	protector.installGetHuiOverride()
+	OrbitSpy.installGetHuiOverride()
 end)
 
 for i = 1, #cacheHosts do
-	pcall(rawset, cacheHosts[i], cacheKey, protector)
+	pcall(rawset, cacheHosts[i], cacheKey, OrbitSpy)
 end
 
-protector.setTableReadonly(protector, true)
+OrbitSpy.setTableReadonly(OrbitSpy, true)
 
-return protector
+return OrbitSpy
