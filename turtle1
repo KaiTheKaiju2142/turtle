@@ -105,7 +105,7 @@ local colorSettings = {
 		TextColor = Color3.fromRGB(255, 255, 255)
 	},
 	Code = { -- Kept as requested
-		BackgroundColor = Color3.fromRGB(35, 40, 48),
+		BackgroundColor = Color3.fromRGB(0, 0, 0),
 		TextColor = Color3.fromRGB(220, 221, 225),
 		CreditsColor = Color3.fromRGB(108, 108, 108)
 	}
@@ -1225,7 +1225,7 @@ Code.Position = UDim2.new(0, 8, 0, 6);
 Code.Size = UDim2.new(0, 509, 0, 138);
 Code.ZIndex = 18;
 Code.Font = Enum.Font.Code;
-Code.Text = "Thanks for using OrbitSpy! :D";
+Code.Text = "Welcome to OrbitSpy!";
 Code.TextColor3 = colorSettings.Code.TextColor;
 Code.TextSize = 14;
 Code.TextWrapped = false;
