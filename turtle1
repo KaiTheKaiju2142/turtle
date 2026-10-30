@@ -86,30 +86,55 @@ end;
 
 local colorSettings = {
 	Main = {
-		HeaderColor = Color3.fromRGB(0, 0, 0),
-		HeaderShadingColor = Color3.fromRGB(15, 15, 15),
+		HeaderColor = Color3.fromRGB(45, 108, 245),
+		HeaderShadingColor = Color3.fromRGB(165, 75, 245),
 		HeaderTextColor = Color3.fromRGB(255, 255, 255),
-		MainBackgroundColor = Color3.fromRGB(0, 0, 0),
-		InfoScrollingFrameBgColor = Color3.fromRGB(0, 0, 0),
-		ScrollBarImageColor = Color3.fromRGB(255, 255, 255)
+		MainBackgroundColor = Color3.fromRGB(28, 31, 44),
+		InfoScrollingFrameBgColor = Color3.fromRGB(28, 31, 44),
+		ScrollBarImageColor = Color3.fromRGB(130, 140, 185)
 	},
 	RemoteButtons = {
-		BorderColor = Color3.fromRGB(50, 50, 50),
-		BackgroundColor = Color3.fromRGB(20, 20, 20),
-		TextColor = Color3.fromRGB(255, 255, 255),
-		NumberTextColor = Color3.fromRGB(255, 255, 255)
+		BorderColor = Color3.fromRGB(52, 58, 78),
+		BackgroundColor = Color3.fromRGB(36, 41, 58),
+		TextColor = Color3.fromRGB(230, 233, 245),
+		NumberTextColor = Color3.fromRGB(160, 172, 210)
 	},
 	MainButtons = {
-		BorderColor = Color3.fromRGB(70, 70, 70),
-		BackgroundColor = Color3.fromRGB(25, 25, 25),
-		TextColor = Color3.fromRGB(255, 255, 255)
+		BorderColor = Color3.fromRGB(52, 58, 78),
+		BackgroundColor = Color3.fromRGB(36, 41, 58),
+		TextColor = Color3.fromRGB(240, 243, 255)
 	},
-	Code = { -- Kept as requested
-		BackgroundColor = Color3.fromRGB(35, 40, 48),
-		TextColor = Color3.fromRGB(220, 221, 225),
-		CreditsColor = Color3.fromRGB(108, 108, 108)
+	Code = {
+		BackgroundColor = Color3.fromRGB(20, 23, 33),
+		TextColor = Color3.fromRGB(225, 230, 245),
+		CreditsColor = Color3.fromRGB(115, 120, 145)
 	}
 };
+
+local function addCorner(instance, radius)
+	if not instance then return end
+	pcall(function()
+		instance.BorderSizePixel = 0
+	end)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius or 6)
+	corner.Parent = instance
+	return corner
+end
+
+local function addGradient(instance, col1, col2, rot)
+	if not instance then return end
+	instance.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, col1 or Color3.fromRGB(45, 108, 245)),
+		ColorSequenceKeypoint.new(1, col2 or Color3.fromRGB(165, 75, 245))
+	})
+	gradient.Rotation = rot or 45
+	gradient.Parent = instance
+	return gradient
+end
+
 local settings = {
 	Keybind = "P"
 };
@@ -130,12 +155,19 @@ local function ClonedService(name)
 	return __lt.cs(name, Reference);
 end;
 local HttpService = ClonedService("HttpService");
-if not isfile("OrbitSpySettings.json") then
-	writefile("OrbitSpySettings.json", __lt.cm("HttpService", "JSONEncode", settings));
-elseif (__lt.cm("HttpService", "JSONDecode", readfile("OrbitSpySettings.json"))).Main then
-	writefile("OrbitSpySettings.json", __lt.cm("HttpService", "JSONEncode", settings));
+local settingsFile = "OrbitSpySettings.json";
+if not isfile(settingsFile) and isfile and isfile("TurtleSpySettings.json") then
+	local ok, old = pcall(readfile, "TurtleSpySettings.json");
+	if ok and old then
+		pcall(writefile, settingsFile, old);
+	end;
+end;
+if not isfile(settingsFile) then
+	writefile(settingsFile, __lt.cm("HttpService", "JSONEncode", settings));
+elseif (__lt.cm("HttpService", "JSONDecode", readfile(settingsFile))).Main then
+	writefile(settingsFile, __lt.cm("HttpService", "JSONEncode", settings));
 else
-	settings = __lt.cm("HttpService", "JSONDecode", readfile("OrbitSpySettings.json"));
+	settings = __lt.cm("HttpService", "JSONDecode", readfile(settingsFile));
 end;
 local function isSynapse()
 	if PROTOSMASHER_LOADED then
@@ -146,7 +178,7 @@ local function isSynapse()
 end;
 local client = (ClonedService("Players")).LocalPlayer;
 local G = getgenv and getgenv() or _G;
-G.__orbitspy = G.__orbitspy or {};
+G.__orbitspy = G.__orbitspy or G.__tspy or {};
 local tstate = G.__orbitspy;
 tstate.RunService = ClonedService("RunService");
 if tstate.cleanup then
@@ -322,10 +354,15 @@ local function GetFullPathOfAnInstance(instance)
 	end;
 	return formatChild(parentPath, instance);
 end;
+
 local __NAOrbitParent = gethui() or ClonedService("CoreGui");
 if __NAOrbitParent and __NAOrbitParent:FindFirstChild("OrbitSpyGUI") then
 	__NAOrbitParent.OrbitSpyGUI:Destroy();
 end;
+if __NAOrbitParent and __NAOrbitParent:FindFirstChild("TurtleSpyGUI") then
+	__NAOrbitParent.TurtleSpyGUI:Destroy();
+end;
+
 local buttonOffset = -25;
 local scrollSizeOffset = 287;
 local functionImage = "http://www.roblox.com/asset/?id=413369623";
@@ -660,6 +697,7 @@ local function runAdonisBypass()
 		tstate.adonisBypassed = true
 	end
 end
+
 local OrbitSpyGUI = Instance.new("ScreenGui");
 local mainFrame = Instance.new("Frame");
 local Header = Instance.new("Frame");
@@ -719,88 +757,98 @@ local CallsScroll = Instance.new("ScrollingFrame");
 local CallButton = Instance.new("TextButton");
 local ClientEventToggle = Instance.new("TextButton");
 local PathModeBtn = Instance.new("TextButton");
+
 OrbitSpyGUI.Name = "OrbitSpyGUI";
 OrbitSpyGUI.Parent = __NAOrbitParent or ClonedService("CoreGui");
 OrbitSpyGUI.ResetOnSpawn = false;
 OrbitSpyGUI.IgnoreGuiInset = true;
 OrbitSpyGUI.DisplayOrder = 999999;
 OrbitSpyGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
+
 mainFrame.Name = "mainFrame";
 mainFrame.Parent = OrbitSpyGUI;
-mainFrame.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
-mainFrame.BorderColor3 = colorSettings.Main.MainBackgroundColor;
 mainFrame.Position = UDim2.new(0.1, 0, 0.24, 0);
 mainFrame.Size = UDim2.new(0, 207, 0, 35);
 mainFrame.ZIndex = 8;
 mainFrame.Active = true;
 mainFrame.Draggable = true;
+addCorner(mainFrame, 7);
+addGradient(mainFrame, Color3.fromRGB(24, 27, 44), Color3.fromRGB(36, 26, 52), 45);
+
 BrowserHeader.Name = "BrowserHeader";
 BrowserHeader.Parent = OrbitSpyGUI;
-BrowserHeader.BackgroundColor3 = colorSettings.Main.HeaderShadingColor;
-BrowserHeader.BorderColor3 = colorSettings.Main.HeaderShadingColor;
 BrowserHeader.Position = UDim2.new(0.7, 0, 0.34, 0);
 BrowserHeader.Size = UDim2.new(0, 230, 0, 320);
 BrowserHeader.ZIndex = 20;
 BrowserHeader.Active = true;
 BrowserHeader.Draggable = true;
 BrowserHeader.Visible = false;
+addCorner(BrowserHeader, 7);
+addGradient(BrowserHeader, Color3.fromRGB(24, 27, 44), Color3.fromRGB(36, 26, 52), 45);
+
 BrowserHeaderFrame.Name = "BrowserHeaderFrame";
 BrowserHeaderFrame.Parent = BrowserHeader;
-BrowserHeaderFrame.BackgroundColor3 = colorSettings.Main.HeaderColor;
-BrowserHeaderFrame.BorderColor3 = colorSettings.Main.HeaderColor;
 BrowserHeaderFrame.Position = UDim2.new(0, 0, 0, 0);
-BrowserHeaderFrame.Size = UDim2.new(0, 230, 0, 26);
+BrowserHeaderFrame.Size = UDim2.new(0, 230, 0, 28);
 BrowserHeaderFrame.ZIndex = 21;
+addCorner(BrowserHeaderFrame, 6);
+addGradient(BrowserHeaderFrame, Color3.fromRGB(45, 108, 245), Color3.fromRGB(165, 75, 245), 35);
+
 BrowserHeaderText.Name = "InfoHeaderText";
 BrowserHeaderText.Parent = BrowserHeaderFrame;
 BrowserHeaderText.BackgroundTransparency = 1;
-BrowserHeaderText.Position = UDim2.new(0, 0, -0.002, 0);
-BrowserHeaderText.Size = UDim2.new(0, 206, 0, 26);
+BrowserHeaderText.Position = UDim2.new(0, 10, 0, 0);
+BrowserHeaderText.Size = UDim2.new(0, 190, 0, 28);
 BrowserHeaderText.ZIndex = 22;
-BrowserHeaderText.Font = Enum.Font.SourceSans;
+BrowserHeaderText.Font = Enum.Font.SourceSansSemibold;
 BrowserHeaderText.Text = "Remote Browser";
-BrowserHeaderText.TextColor3 = colorSettings.Main.HeaderTextColor;
-BrowserHeaderText.TextSize = 17;
+BrowserHeaderText.TextColor3 = Color3.fromRGB(255, 255, 255);
+BrowserHeaderText.TextSize = 16;
+BrowserHeaderText.TextXAlignment = Enum.TextXAlignment.Left;
+
 CloseInfoFrame2.Name = "CloseInfoFrame";
 CloseInfoFrame2.Parent = BrowserHeaderFrame;
-CloseInfoFrame2.BackgroundColor3 = colorSettings.Main.HeaderColor;
-CloseInfoFrame2.BorderColor3 = colorSettings.Main.HeaderColor;
-CloseInfoFrame2.Position = UDim2.new(0, 208, 0, 2);
+CloseInfoFrame2.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+CloseInfoFrame2.BackgroundTransparency = 0.5;
+CloseInfoFrame2.Position = UDim2.new(0, 204, 0, 4);
 CloseInfoFrame2.Size = UDim2.new(0, 20, 0, 20);
 CloseInfoFrame2.ZIndex = 38;
-CloseInfoFrame2.Font = Enum.Font.SourceSansLight;
+CloseInfoFrame2.Font = Enum.Font.SourceSansBold;
 CloseInfoFrame2.Text = "X";
 CloseInfoFrame2.TextColor3 = Color3.fromRGB(255, 255, 255);
-CloseInfoFrame2.TextSize = 20;
+CloseInfoFrame2.TextSize = 15;
+addCorner(CloseInfoFrame2, 4);
+
 BrowserSearch.Name = "BrowserSearch";
 BrowserSearch.Parent = BrowserHeader;
-BrowserSearch.BackgroundColor3 = Color3.fromRGB(20, 20, 20);
-BrowserSearch.BorderColor3 = Color3.fromRGB(40, 40, 40);
-BrowserSearch.Position = UDim2.new(0, 8, 0, 30);
-BrowserSearch.Size = UDim2.new(0, 214, 0, 22);
+BrowserSearch.BackgroundColor3 = colorSettings.Code.BackgroundColor;
+BrowserSearch.Position = UDim2.new(0, 8, 0, 34);
+BrowserSearch.Size = UDim2.new(0, 214, 0, 24);
 BrowserSearch.ZIndex = 21;
 BrowserSearch.Font = Enum.Font.SourceSans;
 BrowserSearch.PlaceholderText = "Search remotes...";
 BrowserSearch.Text = "";
 BrowserSearch.TextColor3 = colorSettings.RemoteButtons.TextColor;
-BrowserSearch.TextSize = 16;
+BrowserSearch.TextSize = 15;
 BrowserSearch.ClearTextOnFocus = false;
+addCorner(BrowserSearch, 4);
+
 RemoteBrowserFrame.Name = "RemoteBrowserFrame";
 RemoteBrowserFrame.Parent = BrowserHeader;
 RemoteBrowserFrame.Active = true;
-RemoteBrowserFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-RemoteBrowserFrame.BorderColor3 = Color3.fromRGB(0, 0, 0);
-RemoteBrowserFrame.Position = UDim2.new(0, 0, 0, 58);
-RemoteBrowserFrame.Size = UDim2.new(0, 230, 0, 252);
+RemoteBrowserFrame.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
+RemoteBrowserFrame.Position = UDim2.new(0, 0, 0, 64);
+RemoteBrowserFrame.Size = UDim2.new(0, 230, 0, 248);
 RemoteBrowserFrame.ZIndex = 19;
-RemoteBrowserFrame.CanvasSize = UDim2.new(0, 0, 0, 252);
-RemoteBrowserFrame.ScrollBarThickness = 8;
+RemoteBrowserFrame.CanvasSize = UDim2.new(0, 0, 0, 248);
+RemoteBrowserFrame.ScrollBarThickness = 6;
 RemoteBrowserFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left;
 RemoteBrowserFrame.ScrollBarImageColor3 = colorSettings.Main.ScrollBarImageColor;
+addCorner(RemoteBrowserFrame, 6);
+
 RemoteButton2.Name = "RemoteButton";
 RemoteButton2.Parent = RemoteBrowserFrame;
 RemoteButton2.BackgroundColor3 = colorSettings.RemoteButtons.BackgroundColor;
-RemoteButton2.BorderColor3 = colorSettings.RemoteButtons.BorderColor;
 RemoteButton2.Position = UDim2.new(0, 17, 0, 10);
 RemoteButton2.Size = UDim2.new(0, 196, 0, 26);
 RemoteButton2.ZIndex = 20;
@@ -812,18 +860,21 @@ RemoteButton2.TextStrokeTransparency = 123;
 RemoteButton2.TextWrapped = true;
 RemoteButton2.TextXAlignment = Enum.TextXAlignment.Left;
 RemoteButton2.Visible = false;
+addCorner(RemoteButton2, 5);
+
 RemoteName2.Name = "RemoteName2";
 RemoteName2.Parent = RemoteButton2;
 RemoteName2.BackgroundTransparency = 1;
-RemoteName2.Position = UDim2.new(0, 5, 0, 0);
-RemoteName2.Size = UDim2.new(0, 160, 0, 26);
+RemoteName2.Position = UDim2.new(0, 8, 0, 0);
+RemoteName2.Size = UDim2.new(0, 155, 0, 26);
 RemoteName2.ZIndex = 21;
 RemoteName2.Font = Enum.Font.SourceSans;
 RemoteName2.Text = "RemoteEvent";
 RemoteName2.TextColor3 = colorSettings.RemoteButtons.TextColor;
-RemoteName2.TextSize = 16;
+RemoteName2.TextSize = 15;
 RemoteName2.TextXAlignment = Enum.TextXAlignment.Left;
 RemoteName2.TextTruncate = 1;
+
 RemoteIcon2.Name = "RemoteIcon2";
 RemoteIcon2.Parent = RemoteButton2;
 RemoteIcon2.BackgroundTransparency = 1;
@@ -831,48 +882,54 @@ RemoteIcon2.Position = UDim2.new(0.84, 0, 0.022, 0);
 RemoteIcon2.Size = UDim2.new(0, 24, 0, 24);
 RemoteIcon2.ZIndex = 21;
 RemoteIcon2.Image = functionImage;
+
 BrowseExecFrame.Name = "BrowseExecFrame";
 BrowseExecFrame.Parent = OrbitSpyGUI;
-BrowseExecFrame.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
-BrowseExecFrame.BorderColor3 = colorSettings.Main.MainBackgroundColor;
 BrowseExecFrame.Position = UDim2.new(0.7, 0, 0.34, 0);
 BrowseExecFrame.Size = UDim2.new(0, 230, 0, 170);
 BrowseExecFrame.ZIndex = 20;
 BrowseExecFrame.Visible = false;
 BrowseExecFrame.Active = true;
 BrowseExecFrame.Draggable = true;
+addCorner(BrowseExecFrame, 7);
+addGradient(BrowseExecFrame, Color3.fromRGB(24, 27, 44), Color3.fromRGB(36, 26, 52), 45);
+
 BrowseExecHeader.Name = "BrowseExecHeader";
 BrowseExecHeader.Parent = BrowseExecFrame;
-BrowseExecHeader.BackgroundColor3 = colorSettings.Main.HeaderColor;
-BrowseExecHeader.BorderColor3 = colorSettings.Main.HeaderColor;
-BrowseExecHeader.Size = UDim2.new(0, 230, 0, 24);
+BrowseExecHeader.Size = UDim2.new(0, 230, 0, 26);
 BrowseExecHeader.ZIndex = 21;
+addCorner(BrowseExecHeader, 6);
+addGradient(BrowseExecHeader, Color3.fromRGB(45, 108, 245), Color3.fromRGB(165, 75, 245), 35);
+
 BrowseExecTitle.Name = "BrowseExecTitle";
 BrowseExecTitle.Parent = BrowseExecHeader;
 BrowseExecTitle.BackgroundTransparency = 1;
-BrowseExecTitle.Position = UDim2.new(0, 5, 0, 0);
-BrowseExecTitle.Size = UDim2.new(0, 200, 0, 24);
+BrowseExecTitle.Position = UDim2.new(0, 8, 0, 0);
+BrowseExecTitle.Size = UDim2.new(0, 195, 0, 26);
 BrowseExecTitle.ZIndex = 22;
-BrowseExecTitle.Font = Enum.Font.SourceSans;
+BrowseExecTitle.Font = Enum.Font.SourceSansSemibold;
 BrowseExecTitle.Text = "Execute remote";
-BrowseExecTitle.TextColor3 = colorSettings.Main.HeaderTextColor;
-BrowseExecTitle.TextSize = 16;
+BrowseExecTitle.TextColor3 = Color3.fromRGB(255, 255, 255);
+BrowseExecTitle.TextSize = 15;
 BrowseExecTitle.TextXAlignment = Enum.TextXAlignment.Left;
+
 BrowseExecClose.Name = "BrowseExecClose";
 BrowseExecClose.Parent = BrowseExecHeader;
-BrowseExecClose.BackgroundColor3 = colorSettings.Main.HeaderColor;
-BrowseExecClose.BorderColor3 = colorSettings.Main.HeaderColor;
-BrowseExecClose.Position = UDim2.new(0, 208, 0, 1);
+BrowseExecClose.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+BrowseExecClose.BackgroundTransparency = 0.5;
+BrowseExecClose.Position = UDim2.new(0, 206, 0, 3);
 BrowseExecClose.Size = UDim2.new(0, 20, 0, 20);
 BrowseExecClose.ZIndex = 22;
-BrowseExecClose.Font = Enum.Font.SourceSans;
+BrowseExecClose.Font = Enum.Font.SourceSansBold;
 BrowseExecClose.Text = "X";
 BrowseExecClose.TextColor3 = Color3.fromRGB(255, 255, 255);
-BrowseExecClose.TextSize = 16;
+BrowseExecClose.TextSize = 15;
+addCorner(BrowseExecClose, 4);
+
 BrowseExecArgsLabel.Name = "BrowseExecArgsLabel";
 BrowseExecArgsLabel.Parent = BrowseExecFrame;
 BrowseExecArgsLabel.BackgroundTransparency = 1;
-BrowseExecArgsLabel.Position = UDim2.new(0, 8, 0, 30);
+BrowseExecArgsLabel.Position = UDim2.new(0, 8, 0, 32);
 BrowseExecArgsLabel.Size = UDim2.new(0, 214, 0, 18);
 BrowseExecArgsLabel.ZIndex = 21;
 BrowseExecArgsLabel.Font = Enum.Font.SourceSans;
@@ -880,11 +937,11 @@ BrowseExecArgsLabel.Text = "Args (Lua expression)";
 BrowseExecArgsLabel.TextColor3 = colorSettings.RemoteButtons.TextColor;
 BrowseExecArgsLabel.TextSize = 14;
 BrowseExecArgsLabel.TextXAlignment = Enum.TextXAlignment.Left;
+
 BrowseExecArgsBox.Name = "BrowseExecArgsBox";
 BrowseExecArgsBox.Parent = BrowseExecFrame;
-BrowseExecArgsBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20);
-BrowseExecArgsBox.BorderColor3 = Color3.fromRGB(40, 40, 40);
-BrowseExecArgsBox.Position = UDim2.new(0, 8, 0, 48);
+BrowseExecArgsBox.BackgroundColor3 = colorSettings.Code.BackgroundColor;
+BrowseExecArgsBox.Position = UDim2.new(0, 8, 0, 50);
 BrowseExecArgsBox.Size = UDim2.new(0, 214, 0, 22);
 BrowseExecArgsBox.ZIndex = 21;
 BrowseExecArgsBox.Font = Enum.Font.SourceSans;
@@ -892,10 +949,12 @@ BrowseExecArgsBox.Text = "";
 BrowseExecArgsBox.TextColor3 = colorSettings.RemoteButtons.TextColor;
 BrowseExecArgsBox.TextSize = 14;
 BrowseExecArgsBox.ClearTextOnFocus = false;
+addCorner(BrowseExecArgsBox, 4);
+
 BrowseExecTimesLabel.Name = "BrowseExecTimesLabel";
 BrowseExecTimesLabel.Parent = BrowseExecFrame;
 BrowseExecTimesLabel.BackgroundTransparency = 1;
-BrowseExecTimesLabel.Position = UDim2.new(0, 8, 0, 76);
+BrowseExecTimesLabel.Position = UDim2.new(0, 8, 0, 78);
 BrowseExecTimesLabel.Size = UDim2.new(0, 100, 0, 18);
 BrowseExecTimesLabel.ZIndex = 21;
 BrowseExecTimesLabel.Font = Enum.Font.SourceSans;
@@ -903,11 +962,11 @@ BrowseExecTimesLabel.Text = "Times";
 BrowseExecTimesLabel.TextColor3 = colorSettings.RemoteButtons.TextColor;
 BrowseExecTimesLabel.TextSize = 14;
 BrowseExecTimesLabel.TextXAlignment = Enum.TextXAlignment.Left;
+
 BrowseExecTimesBox.Name = "BrowseExecTimesBox";
 BrowseExecTimesBox.Parent = BrowseExecFrame;
-BrowseExecTimesBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20);
-BrowseExecTimesBox.BorderColor3 = Color3.fromRGB(40, 40, 40);
-BrowseExecTimesBox.Position = UDim2.new(0, 8, 0, 94);
+BrowseExecTimesBox.BackgroundColor3 = colorSettings.Code.BackgroundColor;
+BrowseExecTimesBox.Position = UDim2.new(0, 8, 0, 96);
 BrowseExecTimesBox.Size = UDim2.new(0, 80, 0, 22);
 BrowseExecTimesBox.ZIndex = 21;
 BrowseExecTimesBox.Font = Enum.Font.SourceSans;
@@ -915,28 +974,32 @@ BrowseExecTimesBox.Text = "1";
 BrowseExecTimesBox.TextColor3 = colorSettings.RemoteButtons.TextColor;
 BrowseExecTimesBox.TextSize = 14;
 BrowseExecTimesBox.ClearTextOnFocus = false;
+addCorner(BrowseExecTimesBox, 4);
+
 BrowseExecRun.Name = "BrowseExecRun";
 BrowseExecRun.Parent = BrowseExecFrame;
-BrowseExecRun.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-BrowseExecRun.BorderColor3 = colorSettings.MainButtons.BorderColor;
-BrowseExecRun.Position = UDim2.new(0, 8, 0, 126);
+BrowseExecRun.Position = UDim2.new(0, 8, 0, 128);
 BrowseExecRun.Size = UDim2.new(0, 100, 0, 26);
 BrowseExecRun.ZIndex = 21;
-BrowseExecRun.Font = Enum.Font.SourceSans;
+BrowseExecRun.Font = Enum.Font.SourceSansBold;
 BrowseExecRun.Text = "Run";
 BrowseExecRun.TextColor3 = Color3.fromRGB(255, 255, 255);
-BrowseExecRun.TextSize = 16;
+BrowseExecRun.TextSize = 15;
+addCorner(BrowseExecRun, 5);
+addGradient(BrowseExecRun, Color3.fromRGB(45, 108, 245), Color3.fromRGB(165, 75, 245), 35);
+
 BrowseExecLoop.Name = "BrowseExecLoop";
 BrowseExecLoop.Parent = BrowseExecFrame;
 BrowseExecLoop.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-BrowseExecLoop.BorderColor3 = colorSettings.MainButtons.BorderColor;
-BrowseExecLoop.Position = UDim2.new(0, 122, 0, 126);
+BrowseExecLoop.Position = UDim2.new(0, 122, 0, 128);
 BrowseExecLoop.Size = UDim2.new(0, 100, 0, 26);
 BrowseExecLoop.ZIndex = 21;
-BrowseExecLoop.Font = Enum.Font.SourceSans;
+BrowseExecLoop.Font = Enum.Font.SourceSansSemibold;
 BrowseExecLoop.Text = "Loop: OFF";
-BrowseExecLoop.TextColor3 = Color3.fromRGB(255, 255, 255);
-BrowseExecLoop.TextSize = 16;
+BrowseExecLoop.TextColor3 = Color3.fromRGB(250, 251, 255);
+BrowseExecLoop.TextSize = 15;
+addCorner(BrowseExecLoop, 5);
+
 local browsedButtonOffset = 10;
 local browseRemotes = {};
 local browseSelRemote;
@@ -1019,10 +1082,10 @@ local function refreshBrowserList(filter)
 		end
 	end
 
-	if browsedButtonOffset > 252 then
+	if browsedButtonOffset > 248 then
 		RemoteBrowserFrame.CanvasSize = UDim2.new(0, 0, 0, browsedButtonOffset)
 	else
-		RemoteBrowserFrame.CanvasSize = UDim2.new(0, 0, 0, 252)
+		RemoteBrowserFrame.CanvasSize = UDim2.new(0, 0, 0, 248)
 	end
 end
 BrowserSearch:GetPropertyChangedSignal("Text"):Connect(function()
@@ -1067,7 +1130,7 @@ BrowseExecLoop.MouseButton1Click:Connect(function()
 		browseLoop = false
 		browseLoopToken = browseLoopToken + 1
 		BrowseExecLoop.Text = "Loop: OFF"
-		BrowseExecLoop.TextColor3 = Color3.fromRGB(255, 255, 255)
+		BrowseExecLoop.TextColor3 = Color3.fromRGB(250, 251, 255)
 	end
 end)
 
@@ -1087,75 +1150,84 @@ BrowseExecRun.MouseButton1Click:Connect(function()
 		fireRemoteNow(r, argsPack)
 	end
 end)
+
 Header.Name = "Header";
 Header.Parent = mainFrame;
-Header.BackgroundColor3 = colorSettings.Main.HeaderColor;
-Header.BorderColor3 = colorSettings.Main.HeaderColor;
-Header.Size = UDim2.new(0, 207, 0, 26);
+Header.Position = UDim2.new(0, 0, 0, 0);
+Header.Size = UDim2.new(0, 207, 0, 35);
 Header.ZIndex = 9;
+addCorner(Header, 7);
+addGradient(Header, Color3.fromRGB(45, 108, 245), Color3.fromRGB(165, 75, 245), 35);
+
 HeaderShading.Name = "HeaderShading";
 HeaderShading.Parent = Header;
-HeaderShading.BackgroundColor3 = colorSettings.Main.HeaderShadingColor;
-HeaderShading.BorderColor3 = colorSettings.Main.HeaderShadingColor;
-HeaderShading.Position = UDim2.new(0, 0, 0.286, 0);
-HeaderShading.Size = UDim2.new(0, 207, 0, 27);
+HeaderShading.BackgroundTransparency = 1;
+HeaderShading.Position = UDim2.new(0, 0, 0, 0);
+HeaderShading.Size = UDim2.new(0, 207, 0, 35);
 HeaderShading.ZIndex = 8;
+
 HeaderTextLabel.Name = "HeaderTextLabel";
-HeaderTextLabel.Parent = HeaderShading;
+HeaderTextLabel.Parent = Header;
 HeaderTextLabel.BackgroundTransparency = 1;
-HeaderTextLabel.Position = UDim2.new(-0.005, 0, -0.203, 0);
-HeaderTextLabel.Size = UDim2.new(0, 215, 0, 29);
+HeaderTextLabel.Position = UDim2.new(0, 32, 0, 0);
+HeaderTextLabel.Size = UDim2.new(0, 125, 0, 35);
 HeaderTextLabel.ZIndex = 10;
-HeaderTextLabel.Font = Enum.Font.SourceSans;
+HeaderTextLabel.Font = Enum.Font.SourceSansBold;
 HeaderTextLabel.Text = "OrbitSpy";
-HeaderTextLabel.TextColor3 = colorSettings.Main.HeaderTextColor;
+HeaderTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255);
 HeaderTextLabel.TextSize = 17;
+HeaderTextLabel.TextXAlignment = Enum.TextXAlignment.Left;
+
 ImageButton.Parent = Header;
 ImageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
 ImageButton.BackgroundTransparency = 1;
 ImageButton.Position = UDim2.new(0, 8, 0, 8);
 ImageButton.Size = UDim2.new(0, 18, 0, 18);
-ImageButton.ZIndex = 9;
+ImageButton.ZIndex = 11;
 ImageButton.Image = "rbxassetid://169476802";
-ImageButton.ImageColor3 = Color3.fromRGB(200, 200, 200);
+ImageButton.ImageColor3 = Color3.fromRGB(255, 255, 255);
+
 RemoteScrollFrame.Name = "RemoteScrollFrame";
 RemoteScrollFrame.Parent = mainFrame;
 RemoteScrollFrame.Active = true;
-RemoteScrollFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-RemoteScrollFrame.BorderColor3 = Color3.fromRGB(0, 0, 0);
+RemoteScrollFrame.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
 RemoteScrollFrame.Position = UDim2.new(0, 0, 1.0229, 0);
 RemoteScrollFrame.Size = UDim2.new(0, 207, 0, 286);
 RemoteScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 287);
-RemoteScrollFrame.ScrollBarThickness = 8;
+RemoteScrollFrame.ScrollBarThickness = 6;
 RemoteScrollFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left;
 RemoteScrollFrame.ScrollBarImageColor3 = colorSettings.Main.ScrollBarImageColor;
+addCorner(RemoteScrollFrame, 7);
+
 RemoteButton.Name = "RemoteButton";
 RemoteButton.Parent = RemoteScrollFrame;
 RemoteButton.BackgroundColor3 = colorSettings.RemoteButtons.BackgroundColor;
-RemoteButton.BorderColor3 = colorSettings.RemoteButtons.BorderColor;
 RemoteButton.Position = UDim2.new(0, 17, 0, 10);
 RemoteButton.Size = UDim2.new(0, 182, 0, 26);
 RemoteButton.Selected = true;
 RemoteButton.Font = Enum.Font.SourceSans;
 RemoteButton.Text = "";
-RemoteButton.TextColor3 = Color3.fromRGB(255, 255, 255);
+RemoteButton.TextColor3 = Color3.fromRGB(220, 221, 225);
 RemoteButton.TextSize = 18;
 RemoteButton.TextStrokeTransparency = 123;
 RemoteButton.TextWrapped = true;
 RemoteButton.TextXAlignment = Enum.TextXAlignment.Left;
 RemoteButton.Visible = false;
+addCorner(RemoteButton, 5);
+
 Number.Name = "Number";
 Number.Parent = RemoteButton;
 Number.BackgroundTransparency = 1;
-Number.Position = UDim2.new(0, 5, 0, 0);
+Number.Position = UDim2.new(0, 6, 0, 0);
 Number.Size = UDim2.new(0, 300, 0, 26);
 Number.ZIndex = 2;
-Number.Font = Enum.Font.SourceSans;
+Number.Font = Enum.Font.SourceSansBold;
 Number.Text = "1";
 Number.TextColor3 = colorSettings.RemoteButtons.NumberTextColor;
-Number.TextSize = 16;
+Number.TextSize = 15;
 Number.TextWrapped = true;
 Number.TextXAlignment = Enum.TextXAlignment.Left;
+
 RemoteName.Name = "RemoteName";
 RemoteName.Parent = RemoteButton;
 RemoteName.BackgroundTransparency = 1;
@@ -1164,15 +1236,17 @@ RemoteName.Size = UDim2.new(0, 120, 0, 26);
 RemoteName.Font = Enum.Font.SourceSans;
 RemoteName.Text = "RemoteEvent";
 RemoteName.TextColor3 = colorSettings.RemoteButtons.TextColor;
-RemoteName.TextSize = 16;
+RemoteName.TextSize = 15;
 RemoteName.TextXAlignment = Enum.TextXAlignment.Left;
 RemoteName.TextTruncate = 1;
+
 RemoteIcon.Name = "RemoteIcon";
 RemoteIcon.Parent = RemoteButton;
 RemoteIcon.BackgroundTransparency = 1;
 RemoteIcon.Position = UDim2.new(0.78, 0, 0.022, 0);
 RemoteIcon.Size = UDim2.new(0, 24, 0, 24);
 RemoteIcon.Image = eventImage;
+
 ExpandButton.Name = "Expand";
 ExpandButton.Parent = RemoteButton;
 ExpandButton.BackgroundTransparency = 1;
@@ -1183,39 +1257,44 @@ ExpandButton.Font = Enum.Font.SourceSansBold;
 ExpandButton.Text = "+";
 ExpandButton.TextColor3 = colorSettings.RemoteButtons.TextColor;
 ExpandButton.TextSize = 18;
+
 InfoFrame.Name = "InfoFrame";
 InfoFrame.Parent = mainFrame;
-InfoFrame.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
-InfoFrame.BorderColor3 = colorSettings.Main.MainBackgroundColor;
 InfoFrame.Position = UDim2.new(0, 207, 0, 0);
 InfoFrame.Size = UDim2.new(0, 553, 0, 322);
 InfoFrame.Visible = false;
 InfoFrame.ZIndex = 6;
+addCorner(InfoFrame, 7);
+addGradient(InfoFrame, Color3.fromRGB(24, 27, 44), Color3.fromRGB(36, 26, 52), 45);
+
 InfoFrameHeader.Name = "InfoFrameHeader";
 InfoFrameHeader.Parent = InfoFrame;
-InfoFrameHeader.BackgroundColor3 = colorSettings.Main.HeaderColor;
-InfoFrameHeader.BorderColor3 = colorSettings.Main.HeaderColor;
-InfoFrameHeader.Size = UDim2.new(0, 553, 0, 26);
+InfoFrameHeader.Position = UDim2.new(0, 0, 0, 0);
+InfoFrameHeader.Size = UDim2.new(0, 553, 0, 35);
 InfoFrameHeader.ZIndex = 14;
+addCorner(InfoFrameHeader, 6);
+addGradient(InfoFrameHeader, Color3.fromRGB(45, 108, 245), Color3.fromRGB(165, 75, 245), 35);
+
 InfoTitleShading.Name = "InfoTitleShading";
 InfoTitleShading.Parent = InfoFrame;
-InfoTitleShading.BackgroundColor3 = colorSettings.Main.HeaderShadingColor;
-InfoTitleShading.BorderColor3 = colorSettings.Main.HeaderShadingColor;
-InfoTitleShading.Position = UDim2.new(-0.0028, 0, 0, 0);
-InfoTitleShading.Size = UDim2.new(0, 554, 0, 34);
+InfoTitleShading.BackgroundTransparency = 1;
+InfoTitleShading.Position = UDim2.new(0, 0, 0, 0);
+InfoTitleShading.Size = UDim2.new(0, 554, 0, 35);
 InfoTitleShading.ZIndex = 13;
+
 CodeFrame.Name = "CodeFrame";
 CodeFrame.Parent = InfoFrame;
 CodeFrame.Active = true;
 CodeFrame.BackgroundColor3 = colorSettings.Code.BackgroundColor;
-CodeFrame.BorderColor3 = colorSettings.Code.BackgroundColor;
-CodeFrame.Position = UDim2.new(0, 14, 0, 43);
-CodeFrame.Size = UDim2.new(0, 525, 0, 154);
+CodeFrame.Position = UDim2.new(0, 14, 0, 45);
+CodeFrame.Size = UDim2.new(0, 525, 0, 150);
 CodeFrame.ZIndex = 16;
-CodeFrame.CanvasSize = UDim2.new(0, 525, 0, 154);
+CodeFrame.CanvasSize = UDim2.new(0, 525, 0, 150);
 CodeFrame.ScrollBarThickness = 6;
 CodeFrame.ScrollingDirection = Enum.ScrollingDirection.XY;
 CodeFrame.ScrollBarImageColor3 = colorSettings.Main.ScrollBarImageColor;
+addCorner(CodeFrame, 6);
+
 Code.Name = "Code";
 Code.Parent = CodeFrame;
 Code.BackgroundTransparency = 1;
@@ -1231,21 +1310,23 @@ Code.TextSize = 14;
 Code.TextWrapped = false;
 Code.TextXAlignment = Enum.TextXAlignment.Left;
 Code.TextYAlignment = Enum.TextYAlignment.Top;
+
 InfoHeaderText.Name = "InfoHeaderText";
 InfoHeaderText.Parent = InfoFrame;
 InfoHeaderText.BackgroundTransparency = 1;
-InfoHeaderText.Position = UDim2.new(0, 14, 0, -1);
-InfoHeaderText.Size = UDim2.new(0, 520, 0, 35);
+InfoHeaderText.Position = UDim2.new(0, 14, 0, 0);
+InfoHeaderText.Size = UDim2.new(0, 500, 0, 35);
 InfoHeaderText.ZIndex = 18;
-InfoHeaderText.Font = Enum.Font.SourceSans;
+InfoHeaderText.Font = Enum.Font.SourceSansBold;
 InfoHeaderText.Text = "Info: RemoteFunction";
-InfoHeaderText.TextColor3 = colorSettings.Main.HeaderTextColor;
-InfoHeaderText.TextSize = 17;
+InfoHeaderText.TextColor3 = Color3.fromRGB(255, 255, 255);
+InfoHeaderText.TextSize = 16;
+InfoHeaderText.TextXAlignment = Enum.TextXAlignment.Left;
+
 InfoButtonsScroll.Name = "InfoButtonsScroll";
 InfoButtonsScroll.Parent = InfoFrame;
 InfoButtonsScroll.Active = true;
 InfoButtonsScroll.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
-InfoButtonsScroll.BorderColor3 = colorSettings.Main.MainBackgroundColor;
 InfoButtonsScroll.Position = UDim2.new(0, 14, 0, 205);
 InfoButtonsScroll.Size = UDim2.new(0, 525, 0, 105);
 InfoButtonsScroll.ZIndex = 11;
@@ -1253,209 +1334,231 @@ InfoButtonsScroll.CanvasSize = UDim2.new(0, 0, 0, 190);
 InfoButtonsScroll.ScrollBarThickness = 6;
 InfoButtonsScroll.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left;
 InfoButtonsScroll.ScrollBarImageColor3 = colorSettings.Main.ScrollBarImageColor;
+addCorner(InfoButtonsScroll, 6);
+
 CopyCode.Name = "CopyCode";
 CopyCode.Parent = InfoButtonsScroll;
 CopyCode.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-CopyCode.BorderColor3 = colorSettings.MainButtons.BorderColor;
 CopyCode.Position = UDim2.new(0, 10, 0, 6);
 CopyCode.Size = UDim2.new(0, 248, 0, 22);
 CopyCode.ZIndex = 15;
-CopyCode.Font = Enum.Font.SourceSans;
+CopyCode.Font = Enum.Font.SourceSansSemibold;
 CopyCode.Text = "Copy code";
-CopyCode.TextColor3 = Color3.fromRGB(255, 255, 255);
+CopyCode.TextColor3 = Color3.fromRGB(250, 251, 255);
 CopyCode.TextSize = 14;
+addCorner(CopyCode, 5);
+
 RunCode.Name = "RunCode";
 RunCode.Parent = InfoButtonsScroll;
-RunCode.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-RunCode.BorderColor3 = colorSettings.MainButtons.BorderColor;
 RunCode.Position = UDim2.new(0, 267, 0, 6);
 RunCode.Size = UDim2.new(0, 248, 0, 22);
 RunCode.ZIndex = 15;
-RunCode.Font = Enum.Font.SourceSans;
+RunCode.Font = Enum.Font.SourceSansBold;
 RunCode.Text = "Execute";
 RunCode.TextColor3 = Color3.fromRGB(255, 255, 255);
 RunCode.TextSize = 14;
+addCorner(RunCode, 5);
+addGradient(RunCode, Color3.fromRGB(45, 108, 245), Color3.fromRGB(165, 75, 245), 35);
+
 CopyScriptPath.Name = "CopyScriptPath";
 CopyScriptPath.Parent = InfoButtonsScroll;
 CopyScriptPath.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-CopyScriptPath.BorderColor3 = colorSettings.MainButtons.BorderColor;
 CopyScriptPath.Position = UDim2.new(0, 10, 0, 32);
 CopyScriptPath.Size = UDim2.new(0, 248, 0, 22);
 CopyScriptPath.ZIndex = 15;
-CopyScriptPath.Font = Enum.Font.SourceSans;
+CopyScriptPath.Font = Enum.Font.SourceSansSemibold;
 CopyScriptPath.Text = "Copy script path";
-CopyScriptPath.TextColor3 = Color3.fromRGB(255, 255, 255);
+CopyScriptPath.TextColor3 = Color3.fromRGB(250, 251, 255);
 CopyScriptPath.TextSize = 14;
+addCorner(CopyScriptPath, 5);
+
 CopyDecompiled.Name = "CopyDecompiled";
 CopyDecompiled.Parent = InfoButtonsScroll;
 CopyDecompiled.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-CopyDecompiled.BorderColor3 = colorSettings.MainButtons.BorderColor;
 CopyDecompiled.Position = UDim2.new(0, 267, 0, 32);
 CopyDecompiled.Size = UDim2.new(0, 248, 0, 22);
 CopyDecompiled.ZIndex = 15;
-CopyDecompiled.Font = Enum.Font.SourceSans;
+CopyDecompiled.Font = Enum.Font.SourceSansSemibold;
 CopyDecompiled.Text = "Copy decompiled script";
-CopyDecompiled.TextColor3 = Color3.fromRGB(255, 255, 255);
+CopyDecompiled.TextColor3 = Color3.fromRGB(250, 251, 255);
 CopyDecompiled.TextSize = 14;
+addCorner(CopyDecompiled, 5);
+
 IgnoreRemote.Name = "IgnoreRemote";
 IgnoreRemote.Parent = InfoButtonsScroll;
 IgnoreRemote.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-IgnoreRemote.BorderColor3 = colorSettings.MainButtons.BorderColor;
 IgnoreRemote.Position = UDim2.new(0, 267, 0, 58);
 IgnoreRemote.Size = UDim2.new(0, 248, 0, 22);
 IgnoreRemote.ZIndex = 15;
-IgnoreRemote.Font = Enum.Font.SourceSans;
+IgnoreRemote.Font = Enum.Font.SourceSansSemibold;
 IgnoreRemote.Text = "Ignore remote";
-IgnoreRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
+IgnoreRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
 IgnoreRemote.TextSize = 14;
+addCorner(IgnoreRemote, 5);
+
 BlockRemote.Name = "Block Remote";
 BlockRemote.Parent = InfoButtonsScroll;
 BlockRemote.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-BlockRemote.BorderColor3 = colorSettings.MainButtons.BorderColor;
 BlockRemote.Position = UDim2.new(0, 10, 0, 84);
 BlockRemote.Size = UDim2.new(0, 248, 0, 22);
 BlockRemote.ZIndex = 15;
-BlockRemote.Font = Enum.Font.SourceSans;
+BlockRemote.Font = Enum.Font.SourceSansSemibold;
 BlockRemote.Text = "Block remote from firing";
-BlockRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
+BlockRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
 BlockRemote.TextSize = 14;
+addCorner(BlockRemote, 5);
+
 DoNotStack.Name = "DoNotStack";
 DoNotStack.Parent = InfoButtonsScroll;
 DoNotStack.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-DoNotStack.BorderColor3 = colorSettings.MainButtons.BorderColor;
 DoNotStack.Position = UDim2.new(0, 10, 0, 58);
 DoNotStack.Size = UDim2.new(0, 248, 0, 22);
 DoNotStack.ZIndex = 15;
-DoNotStack.Font = Enum.Font.SourceSans;
+DoNotStack.Font = Enum.Font.SourceSansSemibold;
 DoNotStack.Text = "Unstack new args";
-DoNotStack.TextColor3 = Color3.fromRGB(255, 255, 255);
+DoNotStack.TextColor3 = Color3.fromRGB(250, 251, 255);
 DoNotStack.TextSize = 14;
+addCorner(DoNotStack, 5);
+
 Clear.Name = "Clear";
 Clear.Parent = InfoButtonsScroll;
 Clear.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-Clear.BorderColor3 = colorSettings.MainButtons.BorderColor;
 Clear.Position = UDim2.new(0, 267, 0, 84);
 Clear.Size = UDim2.new(0, 248, 0, 22);
 Clear.ZIndex = 15;
-Clear.Font = Enum.Font.SourceSans;
+Clear.Font = Enum.Font.SourceSansSemibold;
 Clear.Text = "Clear logs";
-Clear.TextColor3 = Color3.fromRGB(255, 255, 255);
+Clear.TextColor3 = Color3.fromRGB(250, 251, 255);
 Clear.TextSize = 14;
+addCorner(Clear, 5);
+
 CopyReturn.Name = "CopyReturn";
 CopyReturn.Parent = InfoButtonsScroll;
 CopyReturn.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-CopyReturn.BorderColor3 = colorSettings.MainButtons.BorderColor;
 CopyReturn.Position = UDim2.new(0, 10, 0, 136);
 CopyReturn.Size = UDim2.new(0, 248, 0, 22);
 CopyReturn.ZIndex = 15;
-CopyReturn.Font = Enum.Font.SourceSans;
+CopyReturn.Font = Enum.Font.SourceSansSemibold;
 CopyReturn.Text = "Execute and copy return value";
-CopyReturn.TextColor3 = Color3.fromRGB(255, 255, 255);
+CopyReturn.TextColor3 = Color3.fromRGB(250, 251, 255);
 CopyReturn.TextSize = 14;
 CopyReturn.Visible = false
+addCorner(CopyReturn, 5);
+
 tstate.SpamRemote.Name = "SpamRemote";
 tstate.SpamRemote.Parent = InfoButtonsScroll;
 tstate.SpamRemote.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-tstate.SpamRemote.BorderColor3 = colorSettings.MainButtons.BorderColor;
 tstate.SpamRemote.Position = UDim2.new(0, 10, 0, 136);
 tstate.SpamRemote.Size = UDim2.new(0, 248, 0, 22);
 tstate.SpamRemote.ZIndex = 15;
-tstate.SpamRemote.Font = Enum.Font.SourceSans;
+tstate.SpamRemote.Font = Enum.Font.SourceSansSemibold;
 tstate.SpamRemote.Text = "Spam Remote: OFF";
-tstate.SpamRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
+tstate.SpamRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
 tstate.SpamRemote.TextSize = 14;
+addCorner(tstate.SpamRemote, 5);
+
 tstate.SpamDelayBox.Name = "SpamDelayBox";
 tstate.SpamDelayBox.Parent = InfoButtonsScroll;
-tstate.SpamDelayBox.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-tstate.SpamDelayBox.BorderColor3 = colorSettings.MainButtons.BorderColor;
+tstate.SpamDelayBox.BackgroundColor3 = colorSettings.Code.BackgroundColor;
 tstate.SpamDelayBox.Position = UDim2.new(0, 267, 0, 136);
 tstate.SpamDelayBox.Size = UDim2.new(0, 248, 0, 22);
 tstate.SpamDelayBox.ZIndex = 15;
 tstate.SpamDelayBox.Font = Enum.Font.SourceSans;
 tstate.SpamDelayBox.PlaceholderText = "Spam delay seconds";
 tstate.SpamDelayBox.Text = "0";
-tstate.SpamDelayBox.TextColor3 = Color3.fromRGB(255, 255, 255);
+tstate.SpamDelayBox.TextColor3 = Color3.fromRGB(250, 251, 255);
 tstate.SpamDelayBox.TextSize = 14;
 tstate.SpamDelayBox.ClearTextOnFocus = false;
+addCorner(tstate.SpamDelayBox, 5);
+
 tstate.SpamMode.Name = "SpamMode";
 tstate.SpamMode.Parent = InfoButtonsScroll;
 tstate.SpamMode.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-tstate.SpamMode.BorderColor3 = colorSettings.MainButtons.BorderColor;
 tstate.SpamMode.Position = UDim2.new(0, 10, 0, 162);
 tstate.SpamMode.Size = UDim2.new(0, 505, 0, 22);
 tstate.SpamMode.ZIndex = 15;
-tstate.SpamMode.Font = Enum.Font.SourceSans;
+tstate.SpamMode.Font = Enum.Font.SourceSansSemibold;
 tstate.SpamMode.Text = "Spam Mode: PreSimulation";
-tstate.SpamMode.TextColor3 = Color3.fromRGB(255, 255, 255);
+tstate.SpamMode.TextColor3 = Color3.fromRGB(250, 251, 255);
 tstate.SpamMode.TextSize = 14;
+addCorner(tstate.SpamMode, 5);
+
 ClientEventToggle.Name = "ClientEventToggle";
 ClientEventToggle.Parent = InfoButtonsScroll;
 ClientEventToggle.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-ClientEventToggle.BorderColor3 = colorSettings.MainButtons.BorderColor;
 ClientEventToggle.Position = UDim2.new(0, 10, 0, 110);
 ClientEventToggle.Size = UDim2.new(0, 248, 0, 22);
 ClientEventToggle.ZIndex = 15;
-ClientEventToggle.Font = Enum.Font.SourceSans;
+ClientEventToggle.Font = Enum.Font.SourceSansSemibold;
 ClientEventToggle.Text = "Log OnClientEvent: OFF";
-ClientEventToggle.TextColor3 = Color3.fromRGB(255, 255, 255);
+ClientEventToggle.TextColor3 = Color3.fromRGB(250, 251, 255);
 ClientEventToggle.TextSize = 14;
+addCorner(ClientEventToggle, 5);
+
 PathModeBtn.Name = "PathModeBtn";
 PathModeBtn.Parent = InfoButtonsScroll;
 PathModeBtn.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-PathModeBtn.BorderColor3 = colorSettings.MainButtons.BorderColor;
 PathModeBtn.Position = UDim2.new(0, 267, 0, 110);
 PathModeBtn.Size = UDim2.new(0, 248, 0, 22);
 PathModeBtn.ZIndex = 15;
-PathModeBtn.Font = Enum.Font.SourceSans;
+PathModeBtn.Font = Enum.Font.SourceSansSemibold;
 PathModeBtn.Text = "Path: .";
-PathModeBtn.TextColor3 = Color3.fromRGB(255, 255, 255);
+PathModeBtn.TextColor3 = Color3.fromRGB(250, 251, 255);
 PathModeBtn.TextSize = 14;
+addCorner(PathModeBtn, 5);
+
 FrameDivider.Name = "FrameDivider";
 FrameDivider.Parent = InfoFrame;
-FrameDivider.BackgroundColor3 = Color3.fromRGB(30, 30, 30);
-FrameDivider.BorderColor3 = Color3.fromRGB(30, 30, 30);
+FrameDivider.BackgroundColor3 = Color3.fromRGB(50, 56, 75);
 FrameDivider.Position = UDim2.new(0, 3, 0, 0);
 FrameDivider.Size = UDim2.new(0, 4, 0, 322);
 FrameDivider.ZIndex = 7;
+addCorner(FrameDivider, 2);
+
 local InfoFrameOpen = false;
 CloseInfoFrame.Name = "CloseInfoFrame";
 CloseInfoFrame.Parent = InfoFrame;
-CloseInfoFrame.BackgroundColor3 = colorSettings.Main.HeaderColor;
-CloseInfoFrame.BorderColor3 = colorSettings.Main.HeaderColor;
-CloseInfoFrame.Position = UDim2.new(0, 529, 0, 2);
+CloseInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+CloseInfoFrame.BackgroundTransparency = 0.5;
+CloseInfoFrame.Position = UDim2.new(0, 526, 0, 6);
 CloseInfoFrame.Size = UDim2.new(0, 22, 0, 22);
 CloseInfoFrame.ZIndex = 18;
-CloseInfoFrame.Font = Enum.Font.SourceSansLight;
+CloseInfoFrame.Font = Enum.Font.SourceSansBold;
 CloseInfoFrame.Text = "X";
 CloseInfoFrame.TextColor3 = Color3.fromRGB(255, 255, 255);
-CloseInfoFrame.TextSize = 20;
+CloseInfoFrame.TextSize = 16;
+addCorner(CloseInfoFrame, 4);
+
 OpenInfoFrame.Name = "OpenInfoFrame";
 OpenInfoFrame.Parent = mainFrame;
-OpenInfoFrame.BackgroundColor3 = colorSettings.Main.HeaderColor;
-OpenInfoFrame.BorderColor3 = colorSettings.Main.HeaderColor;
-OpenInfoFrame.Position = UDim2.new(0, 185, 0, 2);
+OpenInfoFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+OpenInfoFrame.BackgroundTransparency = 0.5;
+OpenInfoFrame.Position = UDim2.new(0, 181, 0, 6);
 OpenInfoFrame.Size = UDim2.new(0, 22, 0, 22);
 OpenInfoFrame.ZIndex = 18;
-OpenInfoFrame.Font = Enum.Font.SourceSans;
+OpenInfoFrame.Font = Enum.Font.SourceSansBold;
 OpenInfoFrame.Text = ">";
 OpenInfoFrame.TextColor3 = Color3.fromRGB(255, 255, 255);
 OpenInfoFrame.TextSize = 16;
+addCorner(OpenInfoFrame, 4);
+
 Minimize.Name = "Minimize";
 Minimize.Parent = mainFrame;
-Minimize.BackgroundColor3 = colorSettings.Main.HeaderColor;
-Minimize.BorderColor3 = colorSettings.Main.HeaderColor;
-Minimize.Position = UDim2.new(0, 164, 0, 2);
+Minimize.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+Minimize.BackgroundTransparency = 0.5;
+Minimize.Position = UDim2.new(0, 155, 0, 6);
 Minimize.Size = UDim2.new(0, 22, 0, 22);
 Minimize.ZIndex = 18;
-Minimize.Font = Enum.Font.SourceSans;
+Minimize.Font = Enum.Font.SourceSansBold;
 Minimize.Text = "_";
 Minimize.TextColor3 = Color3.fromRGB(255, 255, 255);
 Minimize.TextSize = 16;
+addCorner(Minimize, 4);
+
 CallsScroll.Name = "CallsScroll";
 CallsScroll.Parent = InfoFrame;
 CallsScroll.Active = true;
 CallsScroll.BackgroundColor3 = colorSettings.Main.MainBackgroundColor;
-CallsScroll.BorderColor3 = colorSettings.Main.MainBackgroundColor;
 CallsScroll.Position = InfoButtonsScroll.Position;
 CallsScroll.Size = InfoButtonsScroll.Size;
 CallsScroll.ZIndex = 30;
@@ -1464,18 +1567,21 @@ CallsScroll.ScrollBarThickness = 6;
 CallsScroll.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left;
 CallsScroll.ScrollBarImageColor3 = colorSettings.Main.ScrollBarImageColor;
 CallsScroll.Visible = false;
+addCorner(CallsScroll, 6);
+
 CallButton.Name = "CallButton";
 CallButton.Parent = CallsScroll;
 CallButton.BackgroundColor3 = colorSettings.MainButtons.BackgroundColor;
-CallButton.BorderColor3 = colorSettings.MainButtons.BorderColor;
 CallButton.Position = UDim2.new(0, 10, 0, 10);
 CallButton.Size = UDim2.new(0, 505, 0, 24);
 CallButton.ZIndex = 31;
-CallButton.Font = Enum.Font.SourceSans;
+CallButton.Font = Enum.Font.SourceSansSemibold;
 CallButton.Text = "Call #1";
-CallButton.TextColor3 = Color3.fromRGB(255, 255, 255);
+CallButton.TextColor3 = Color3.fromRGB(250, 251, 255);
 CallButton.TextSize = 14;
 CallButton.Visible = false;
+addCorner(CallButton, 5);
+
 __NAProtectUI(OrbitSpyGUI);
 local defaultButtonState = {}
 local function ButtonEffect(textlabel, text)
@@ -1798,7 +1904,7 @@ tstate.spamRemote = {
 
 tstate.spamRemote.refreshControls = function()
 	tstate.SpamRemote.Text = "Spam Remote: " .. (tstate.spamRemote.enabled and "ON" or "OFF")
-	tstate.SpamRemote.TextColor3 = tstate.spamRemote.enabled and Color3.fromRGB(76, 209, 55) or Color3.fromRGB(255, 255, 255)
+	tstate.SpamRemote.TextColor3 = tstate.spamRemote.enabled and Color3.fromRGB(76, 209, 55) or Color3.fromRGB(250, 251, 255)
 	tstate.SpamMode.Text = "Spam Mode: " .. tstate.spamRemote.modes[tstate.spamRemote.modeIndex]
 	tstate.SpamDelayBox.Text = ("%g"):format(tstate.spamRemote.delay)
 end
@@ -1940,6 +2046,7 @@ local function wrapClientInvoke(rf)
 		end
 	end
 end
+
 local function setClientEventLogging(on)
 	logClientEvents = on;
 	if on then
@@ -1981,6 +2088,7 @@ local function initClientInvokeLogging()
 		table.insert(connections, descAddedInvokeConn)
 	end
 end
+
 local function disableIncomingHooks()
 	setClientEventLogging(false)
 	if descAddedInvokeConn then
@@ -1988,12 +2096,6 @@ local function disableIncomingHooks()
 			descAddedInvokeConn:Disconnect()
 		end)
 		descAddedInvokeConn = nil
-	end
-	if descAddedConn then
-		pcall(function()
-			descAddedConn:Disconnect()
-		end)
-		descAddedConn = nil
 	end
 	if tstate.oldNewIndex then
 		local restored = hookMetaMethod and pcall(function()
@@ -2034,6 +2136,7 @@ local function enableIncomingHooks()
 		end
 	end
 end
+
 CopyCode.MouseButton1Click:Connect(function()
 	if not lookingAt then
 		return;
@@ -2126,7 +2229,7 @@ CopyDecompiled.MouseButton1Click:Connect(function()
 		CopyDecompiled.TextColor3 = Color3.fromRGB(232, 65, 24);
 		task.wait(1.6);
 		CopyDecompiled.Text = "Copy decompiled script";
-		CopyDecompiled.TextColor3 = Color3.fromRGB(255, 255, 255);
+		CopyDecompiled.TextColor3 = Color3.fromRGB(250, 251, 255);
 		return;
 	end;
 	if not decompiling and remoteIdx and lookingAt then
@@ -2163,7 +2266,7 @@ CopyDecompiled.MouseButton1Click:Connect(function()
 		end;
 		task.wait(1.6);
 		CopyDecompiled.Text = "Copy decompiled script";
-		CopyDecompiled.TextColor3 = Color3.fromRGB(255, 255, 255);
+		CopyDecompiled.TextColor3 = Color3.fromRGB(250, 251, 255);
 	end;
 end);
 BlockRemote.MouseButton1Click:Connect(function()
@@ -2192,14 +2295,14 @@ BlockRemote.MouseButton1Click:Connect(function()
 		table.remove(BlockList, idx)
 		refreshBlockNamecall()
 		BlockRemote.Text = "Block remote from firing"
-		BlockRemote.TextColor3 = Color3.fromRGB(255, 255, 255)
+		BlockRemote.TextColor3 = Color3.fromRGB(250, 251, 255)
 		local rIndex = table.find(remotes, lookingAt)
 		if rIndex then
 			local num = remoteButtons[rIndex]
 			if num and num.Parent then
 				local rn = num.Parent:FindFirstChild("RemoteName")
 				if rn then
-					rn.TextColor3 = Color3.fromRGB(255, 255, 255);
+					rn.TextColor3 = Color3.fromRGB(245, 246, 250)
 				end
 			end
 		end
@@ -2224,14 +2327,14 @@ IgnoreRemote.MouseButton1Click:Connect(function()
 	elseif lookingAt and idx then
 		table.remove(IgnoreList, idx);
 		IgnoreRemote.Text = "Ignore remote";
-		IgnoreRemote.TextColor3 = Color3.fromRGB(255, 255, 255);
+		IgnoreRemote.TextColor3 = Color3.fromRGB(250, 251, 255);
 		local rIndex = table.find(remotes, lookingAt);
 		if rIndex then
 			local num = remoteButtons[rIndex];
 			if num and num.Parent then
 				local rn = num.Parent:FindFirstChild("RemoteName");
 				if rn then
-					rn.TextColor3 = Color3.fromRGB(255, 255, 255);
+					rn.TextColor3 = Color3.fromRGB(245, 246, 250);
 				end;
 			end;
 		end;
@@ -2277,7 +2380,7 @@ DoNotStack.MouseButton1Click:Connect(function()
 		if isUnstacked then
 			table.remove(unstacked, isUnstacked);
 			DoNotStack.Text = "Unstack new args";
-			DoNotStack.TextColor3 = Color3.fromRGB(255, 255, 255);
+			DoNotStack.TextColor3 = Color3.fromRGB(245, 246, 250);
 		else
 			table.insert(unstacked, lookingAt);
 			DoNotStack.Text = "Stack remote";
@@ -2357,7 +2460,7 @@ RemoteScrollFrame.ChildAdded:Connect(function(child)
 			BlockRemote.TextColor3 = Color3.fromRGB(251, 197, 49)
 		else
 			BlockRemote.Text = "Block remote from firing"
-			BlockRemote.TextColor3 = Color3.fromRGB(255, 255, 255)
+			BlockRemote.TextColor3 = Color3.fromRGB(250, 251, 255)
 		end
 		local iRemote = table.find(IgnoreList, lookingAt)
 		if iRemote then
@@ -2365,7 +2468,7 @@ RemoteScrollFrame.ChildAdded:Connect(function(child)
 			IgnoreRemote.TextColor3 = Color3.fromRGB(127, 143, 166)
 		else
 			IgnoreRemote.Text = "Ignore remote"
-			IgnoreRemote.TextColor3 = Color3.fromRGB(255, 255, 255)
+			IgnoreRemote.TextColor3 = Color3.fromRGB(250, 251, 255)
 		end
 		InfoFrameOpen = true
 	end)
@@ -2481,7 +2584,7 @@ ClientEventToggle.MouseButton1Click:Connect(function()
 	if logClientEvents then
 		disableIncomingHooks();
 		ClientEventToggle.Text = "Log OnClientEvent: OFF";
-		ClientEventToggle.TextColor3 = Color3.fromRGB(255, 255, 255);
+		ClientEventToggle.TextColor3 = Color3.fromRGB(250, 251, 255);
 	else
 		enableIncomingHooks();
 		ClientEventToggle.Text = "Log OnClientEvent: ON";
@@ -3108,7 +3211,7 @@ local function installOrbitSpyMCP()
 		local out = {}
 		local all = getRemoteInstances()
 		for _, remote in all do
-			if filter == "" or remote.Name:lower():find(filter, 1, true) or tostring(safePath(remote) or ""):lower():find(filter, 1, true) then
+			if filter == "" or remote.Name:lower():find(filter, 1, true) or tostring(safePath(remote) or ""):lower():find(filter, 1, true)) then
 				out[#out + 1] = describeRemote(remote, table.find(remotes, remote))
 				if #out >= limit then
 					break
@@ -3304,7 +3407,7 @@ local function installOrbitSpyMCP()
 			else
 				disableIncomingHooks()
 				ClientEventToggle.Text = "Log OnClientEvent: OFF"
-				ClientEventToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+				ClientEventToggle.TextColor3 = Color3.fromRGB(250, 251, 255)
 			end
 			record("incoming", tostring(enabled == true))
 		end
@@ -3412,6 +3515,9 @@ local function installOrbitSpyMCP()
 			target.OrbitSpyMCP = bridge
 			target.OSPY_MCP = bridge
 			target.ORBITSPY_MCP_OPTIONS = options
+			target.TURTLESPY_MCP = bridge
+			target.TurtleSpyMCP = bridge
+			target.TSPY_MCP = bridge
 		end)
 	end
 
@@ -3423,6 +3529,7 @@ end
 syncOrbitStateCollections()
 installOrbitSpyMCP()
 runAdonisBypass()
+
 tstate.cleanup = function()
 	tstate.enabled = false;
 	local mcpBridge = tstate.mcp
@@ -3440,6 +3547,15 @@ tstate.cleanup = function()
 					end
 					if rawget(target, "OSPY_MCP") == mcpBridge then
 						target.OSPY_MCP = nil
+					end
+					if rawget(target, "TURTLESPY_MCP") == mcpBridge then
+						target.TURTLESPY_MCP = nil
+					end
+					if rawget(target, "TurtleSpyMCP") == mcpBridge then
+						target.TurtleSpyMCP = nil
+					end
+					if rawget(target, "TSPY_MCP") == mcpBridge then
+						target.TSPY_MCP = nil
 					end
 				end)
 			end
